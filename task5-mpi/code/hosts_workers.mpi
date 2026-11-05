@@ -1,0 +1,8 @@
+worker1 slots=4
+worker2 slots=4
+worker3 slots=4
+worker4 slots=4
+worker5 slots=4
+worker6 slots=4
+worker7 slots=4
+worker8 slots=4
