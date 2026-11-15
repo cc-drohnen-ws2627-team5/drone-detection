@@ -18,4 +18,12 @@ scrape_configs:
           - 'worker6.local:9100'
           - 'worker7.local:9100'
           - 'worker8.local:9100'
+
+          
+remote_write:
+  - url: "https://prometheus-prod-65-prod-eu-west-2.grafana.net/api/prom/push"
+    basic_auth:
+      username: "3739672"
+      password_file: "/etc/prometheus/grafana_cloud_token"
+  
   
