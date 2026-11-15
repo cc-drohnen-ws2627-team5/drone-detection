@@ -1,0 +1,53 @@
+HPL series started Fri Nov 13 21:07:40 CET 2026, results in /opt/mpi/results/hpl_2026-11-13_2107
+21:07:49 start nb_sweep_w8_nb16_run1: N=21808 NB=16 P=4 Q=8
+21:15:32 done  nb_sweep_w8_nb16_run1: 450.30 s, 1.5357e+01 GFLOPS, PASSED
+21:15:40 start nb_sweep_w8_nb32_run1: N=21792 NB=32 P=4 Q=8
+21:22:06 done  nb_sweep_w8_nb32_run1: 373.03 s, 1.8497e+01 GFLOPS, PASSED
+21:22:14 start nb_sweep_w8_nb64_run1: N=21760 NB=64 P=4 Q=8
+21:28:15 done  nb_sweep_w8_nb64_run1: 348.55 s, 1.9709e+01 GFLOPS, PASSED
+21:28:24 start nb_sweep_w8_nb128_run1: N=21760 NB=128 P=4 Q=8
+21:34:55 done  nb_sweep_w8_nb128_run1: 378.07 s, 1.8170e+01 GFLOPS, PASSED
+21:35:03 start nb_sweep_w8_nb256_run1: N=21760 NB=256 P=4 Q=8
+21:42:03 done  nb_sweep_w8_nb256_run1: 406.91 s, 1.6882e+01 GFLOPS, PASSED
+best NB: 64
+21:42:05 start series_w1_nb64_run1: N=7680 NB=64 P=1 Q=4
+21:43:08 done  series_w1_nb64_run1: 57.86 s, 5.2207e+00 GFLOPS, PASSED
+21:43:11 start series_w2_nb64_run1: N=10880 NB=64 P=2 Q=4
+21:45:22 done  series_w2_nb64_run1: 123.87 s, 6.9332e+00 GFLOPS, PASSED
+21:45:26 start series_w4_nb64_run1: N=15424 NB=64 P=2 Q=8
+21:49:01 done  series_w4_nb64_run1: 206.47 s, 1.1850e+01 GFLOPS, PASSED
+21:49:10 start series_w8_nb64_run1: N=21760 NB=64 P=4 Q=8
+21:55:12 done  series_w8_nb64_run1: 350.09 s, 1.9622e+01 GFLOPS, PASSED
+21:55:13 start series_w1_nb64_run2: N=7680 NB=64 P=1 Q=4
+21:56:17 done  series_w1_nb64_run2: 57.89 s, 5.2186e+00 GFLOPS, PASSED
+21:56:19 start series_w2_nb64_run2: N=10880 NB=64 P=2 Q=4
+21:58:23 done  series_w2_nb64_run2: 116.25 s, 7.3871e+00 GFLOPS, PASSED
+21:58:27 start series_w4_nb64_run2: N=15424 NB=64 P=2 Q=8
+22:02:02 done  series_w4_nb64_run2: 206.37 s, 1.1855e+01 GFLOPS, PASSED
+22:02:11 start series_w8_nb64_run2: N=21760 NB=64 P=4 Q=8
+22:08:14 done  series_w8_nb64_run2: 350.64 s, 1.9591e+01 GFLOPS, PASSED
+22:08:15 start series_w1_nb64_run3: N=7680 NB=64 P=1 Q=4
+22:09:19 done  series_w1_nb64_run3: 57.91 s, 5.2168e+00 GFLOPS, PASSED
+22:09:21 start series_w2_nb64_run3: N=10880 NB=64 P=2 Q=4
+22:11:25 done  series_w2_nb64_run3: 116.86 s, 7.3487e+00 GFLOPS, PASSED
+22:11:29 start series_w4_nb64_run3: N=15424 NB=64 P=2 Q=8
+22:15:05 done  series_w4_nb64_run3: 207.28 s, 1.1803e+01 GFLOPS, PASSED
+22:15:14 start series_w8_nb64_run3: N=21760 NB=64 P=4 Q=8
+22:21:19 done  series_w8_nb64_run3: 351.67 s, 1.9534e+01 GFLOPS, PASSED
+22:21:20 start series_w1_nb64_run4: N=7680 NB=64 P=1 Q=4
+22:22:23 done  series_w1_nb64_run4: 57.85 s, 5.2214e+00 GFLOPS, PASSED
+22:22:26 start series_w2_nb64_run4: N=10880 NB=64 P=2 Q=4
+22:24:30 done  series_w2_nb64_run4: 117.05 s, 7.3372e+00 GFLOPS, PASSED
+22:24:34 start series_w4_nb64_run4: N=15424 NB=64 P=2 Q=8
+22:28:08 done  series_w4_nb64_run4: 205.80 s, 1.1888e+01 GFLOPS, PASSED
+22:28:17 start series_w8_nb64_run4: N=21760 NB=64 P=4 Q=8
+22:34:20 done  series_w8_nb64_run4: 350.67 s, 1.9590e+01 GFLOPS, PASSED
+22:34:21 start series_w1_nb64_run5: N=7680 NB=64 P=1 Q=4
+22:35:25 done  series_w1_nb64_run5: 57.88 s, 5.2193e+00 GFLOPS, PASSED
+22:35:27 start series_w2_nb64_run5: N=10880 NB=64 P=2 Q=4
+22:37:31 done  series_w2_nb64_run5: 116.25 s, 7.3876e+00 GFLOPS, PASSED
+22:37:35 start series_w4_nb64_run5: N=15424 NB=64 P=2 Q=8
+22:41:10 done  series_w4_nb64_run5: 207.11 s, 1.1813e+01 GFLOPS, PASSED
+22:41:19 start series_w8_nb64_run5: N=21760 NB=64 P=4 Q=8
+22:47:23 done  series_w8_nb64_run5: 351.34 s, 1.9553e+01 GFLOPS, PASSED
+HPL series finished Fri Nov 13 22:47:23 CET 2026

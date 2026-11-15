@@ -1,0 +1,165 @@
+Series pi started Fri Nov 13 22:50:13 CET 2026, results in /opt/mpi/results/pi_2026-11-13_2250
+RUNS=5 PROCS=1 2 4 8 16 32 KINDS=fest wachsend SIZES=1000000 10000000 100000000 1000000000 PER_PROC=50000000 GROW= PAUSE=0
+mpirun (Open MPI) 5.0.7
+mpi4py 4.0.3 numpy 2.2.4
+worker1: throttled=0x0  22:50:14 up  2:22,  2 users,  load average: 0.28, 2.22, 3.30 
+worker2: throttled=0x0  22:50:15 up  2:22,  2 users,  load average: 0.21, 2.21, 3.16 
+worker3: throttled=0x50000  22:50:17 up  2:22,  2 users,  load average: 0.29, 2.12, 2.78 
+  worker3: throttling bits set since boot (a reboot resets them)
+worker4: throttled=0x0  22:50:18 up  1:50,  2 users,  load average: 0.18, 2.03, 2.75 
+worker5: throttled=0x0  22:50:19 up  2:22,  2 users,  load average: 0.20, 1.71, 1.93 
+worker6: throttled=0x0  22:50:21 up  2:22,  2 users,  load average: 0.19, 1.67, 1.91 
+worker7: throttled=0x50000  22:50:22 up  2:22,  2 users,  load average: 0.18, 1.67, 1.91 
+  worker7: throttling bits set since boot (a reboot resets them)
+worker8: throttled=0x0  22:50:23 up  2:21,  2 users,  load average: 0.17, 1.64, 1.89 
+22:50:27 fest_n1000000_p1_run1: wall 2.020 s, intern 0.163960 s, pi=3.1444120000, valid=yes
+22:50:30 fest_n1000000_p2_run1: wall 1.720 s, intern 0.100751 s, pi=3.1423720000, valid=yes
+22:50:34 fest_n1000000_p4_run1: wall 2.010 s, intern 0.077230 s, pi=3.1420600000, valid=yes
+22:50:39 fest_n1000000_p8_run1: wall 2.489 s, intern 0.095031 s, pi=3.1430880000, valid=yes
+22:50:47 fest_n1000000_p16_run1: wall 3.088 s, intern 0.058233 s, pi=3.1411000000, valid=yes
+22:51:00 fest_n1000000_p32_run1: wall 3.216 s, intern 0.032997 s, pi=3.1436000000, valid=yes
+22:51:04 fest_n10000000_p1_run1: wall 2.826 s, intern 1.371652 s, pi=3.1414828000, valid=yes
+22:51:08 fest_n10000000_p2_run1: wall 2.416 s, intern 0.878218 s, pi=3.1414516000, valid=yes
+22:51:12 fest_n10000000_p4_run1: wall 2.617 s, intern 0.681476 s, pi=3.1428172000, valid=yes
+22:51:16 fest_n10000000_p8_run1: wall 2.359 s, intern 0.374609 s, pi=3.1420144000, valid=yes
+22:51:24 fest_n10000000_p16_run1: wall 2.314 s, intern 0.203291 s, pi=3.1419892000, valid=yes
+22:51:36 fest_n10000000_p32_run1: wall 2.309 s, intern 0.127061 s, pi=3.1414620000, valid=yes
+22:51:52 fest_n100000000_p1_run1: wall 14.747 s, intern 13.233851 s, pi=3.1414626000, valid=yes
+22:52:03 fest_n100000000_p2_run1: wall 9.896 s, intern 8.280573 s, pi=3.1415491600, valid=yes
+22:52:12 fest_n100000000_p4_run1: wall 7.741 s, intern 5.749867 s, pi=3.1416582000, valid=yes
+22:52:20 fest_n100000000_p8_run1: wall 5.037 s, intern 3.012534 s, pi=3.1419141600, valid=yes
+22:52:28 fest_n100000000_p16_run1: wall 3.750 s, intern 1.614629 s, pi=3.1416864800, valid=yes
+22:52:42 fest_n100000000_p32_run1: wall 3.048 s, intern 0.867339 s, pi=3.1417014400, valid=yes
+22:54:56 fest_n1000000000_p1_run1: wall 133.417 s, intern 131.883899 s, pi=3.1415692680, valid=yes
+22:56:22 fest_n1000000000_p2_run1: wall 84.134 s, intern 82.528496 s, pi=3.1415619120, valid=yes
+22:57:18 fest_n1000000000_p4_run1: wall 54.801 s, intern 52.822935 s, pi=3.1415795680, valid=yes
+22:57:49 fest_n1000000000_p8_run1: wall 28.868 s, intern 26.878380 s, pi=3.1416223160, valid=yes
+22:58:10 fest_n1000000000_p16_run1: wall 15.729 s, intern 13.619133 s, pi=3.1415751920, valid=yes
+22:58:30 fest_n1000000000_p32_run1: wall 9.377 s, intern 7.212350 s, pi=3.1416211480, valid=yes
+22:58:39 wachsend_n50000000_p1_run1: wall 8.159 s, intern 6.635720 s, pi=3.1415947200, valid=yes
+22:58:51 wachsend_n100000000_p2_run1: wall 9.906 s, intern 8.302265 s, pi=3.1415491600, valid=yes
+22:59:05 wachsend_n200000000_p4_run1: wall 12.997 s, intern 10.995850 s, pi=3.1415572800, valid=yes
+22:59:21 wachsend_n400000000_p8_run1: wall 12.954 s, intern 10.956399 s, pi=3.1416051100, valid=yes
+22:59:38 wachsend_n800000000_p16_run1: wall 13.191 s, intern 11.092557 s, pi=3.1415647650, valid=yes
+23:00:02 wachsend_n1600000000_p32_run1: wall 13.261 s, intern 11.106980 s, pi=3.1416142850, valid=yes
+23:00:04 fest_n1000000_p1_run2: wall 1.647 s, intern 0.164079 s, pi=3.1410160000, valid=yes
+23:00:07 fest_n1000000_p2_run2: wall 1.645 s, intern 0.101117 s, pi=3.1394840000, valid=yes
+23:00:11 fest_n1000000_p4_run2: wall 2.013 s, intern 0.078468 s, pi=3.1391680000, valid=yes
+23:00:15 fest_n1000000_p8_run2: wall 2.047 s, intern 0.043366 s, pi=3.1408000000, valid=yes
+23:00:22 fest_n1000000_p16_run2: wall 2.145 s, intern 0.027463 s, pi=3.1404880000, valid=yes
+23:00:34 fest_n1000000_p32_run2: wall 2.161 s, intern 0.022160 s, pi=3.1376480000, valid=yes
+23:00:39 fest_n10000000_p1_run2: wall 2.861 s, intern 1.366586 s, pi=3.1414952000, valid=yes
+23:00:42 fest_n10000000_p2_run2: wall 2.478 s, intern 0.889104 s, pi=3.1425988000, valid=yes
+23:00:46 fest_n10000000_p4_run2: wall 2.611 s, intern 0.699423 s, pi=3.1422500000, valid=yes
+23:00:51 fest_n10000000_p8_run2: wall 2.383 s, intern 0.369143 s, pi=3.1415348000, valid=yes
+23:00:58 fest_n10000000_p16_run2: wall 2.292 s, intern 0.197794 s, pi=3.1415448000, valid=yes
+23:01:11 fest_n10000000_p32_run2: wall 2.233 s, intern 0.104329 s, pi=3.1415328000, valid=yes
+23:01:27 fest_n100000000_p1_run2: wall 14.726 s, intern 13.236146 s, pi=3.1416286800, valid=yes
+23:01:38 fest_n100000000_p2_run2: wall 9.879 s, intern 8.274152 s, pi=3.1417961600, valid=yes
+23:01:47 fest_n100000000_p4_run2: wall 7.603 s, intern 5.644508 s, pi=3.1419046800, valid=yes
+23:01:54 fest_n100000000_p8_run2: wall 5.029 s, intern 3.021008 s, pi=3.1418163600, valid=yes
+23:02:03 fest_n100000000_p16_run2: wall 3.718 s, intern 1.628173 s, pi=3.1417502000, valid=yes
+23:02:16 fest_n100000000_p32_run2: wall 3.038 s, intern 0.864247 s, pi=3.1417161600, valid=yes
+23:04:30 fest_n1000000000_p1_run2: wall 133.527 s, intern 131.999637 s, pi=3.1416165760, valid=yes
+23:05:50 fest_n1000000000_p2_run2: wall 78.268 s, intern 76.640049 s, pi=3.1416751600, valid=yes
+23:06:46 fest_n1000000000_p4_run2: wall 54.781 s, intern 52.827398 s, pi=3.1415951720, valid=yes
+23:07:17 fest_n1000000000_p8_run2: wall 28.712 s, intern 26.693963 s, pi=3.1416492720, valid=yes
+23:07:38 fest_n1000000000_p16_run2: wall 15.441 s, intern 13.376648 s, pi=3.1415710200, valid=yes
+23:07:58 fest_n1000000000_p32_run2: wall 9.527 s, intern 7.325373 s, pi=3.1416068720, valid=yes
+23:08:07 wachsend_n50000000_p1_run2: wall 8.133 s, intern 6.622666 s, pi=3.1417166400, valid=yes
+23:08:18 wachsend_n100000000_p2_run2: wall 9.857 s, intern 8.266675 s, pi=3.1417961600, valid=yes
+23:08:33 wachsend_n200000000_p4_run2: wall 12.904 s, intern 10.920788 s, pi=3.1417665000, valid=yes
+23:08:48 wachsend_n400000000_p8_run2: wall 12.788 s, intern 10.753948 s, pi=3.1417388500, valid=yes
+23:09:06 wachsend_n800000000_p16_run2: wall 13.116 s, intern 11.038961 s, pi=3.1415792200, valid=yes
+23:09:29 wachsend_n1600000000_p32_run2: wall 13.619 s, intern 11.449032 s, pi=3.1415834800, valid=yes
+23:09:32 fest_n1000000_p1_run3: wall 1.637 s, intern 0.165255 s, pi=3.1422760000, valid=yes
+23:09:35 fest_n1000000_p2_run3: wall 1.628 s, intern 0.100339 s, pi=3.1400320000, valid=yes
+23:09:38 fest_n1000000_p4_run3: wall 2.044 s, intern 0.078717 s, pi=3.1408240000, valid=yes
+23:09:43 fest_n1000000_p8_run3: wall 2.031 s, intern 0.043699 s, pi=3.1362760000, valid=yes
+23:09:50 fest_n1000000_p16_run3: wall 2.150 s, intern 0.027695 s, pi=3.1389440000, valid=yes
+23:10:02 fest_n1000000_p32_run3: wall 2.138 s, intern 0.022328 s, pi=3.1379080000, valid=yes
+23:10:06 fest_n10000000_p1_run3: wall 2.861 s, intern 1.369066 s, pi=3.1417720000, valid=yes
+23:10:10 fest_n10000000_p2_run3: wall 2.407 s, intern 0.870247 s, pi=3.1420828000, valid=yes
+23:10:14 fest_n10000000_p4_run3: wall 2.656 s, intern 0.689690 s, pi=3.1416456000, valid=yes
+23:10:19 fest_n10000000_p8_run3: wall 2.368 s, intern 0.374874 s, pi=3.1411272000, valid=yes
+23:10:26 fest_n10000000_p16_run3: wall 2.320 s, intern 0.193172 s, pi=3.1410352000, valid=yes
+23:10:38 fest_n10000000_p32_run3: wall 2.305 s, intern 0.108401 s, pi=3.1408708000, valid=yes
+23:10:54 fest_n100000000_p1_run3: wall 14.747 s, intern 13.247101 s, pi=3.1418030400, valid=yes
+23:11:05 fest_n100000000_p2_run3: wall 9.914 s, intern 8.314640 s, pi=3.1417443200, valid=yes
+23:11:15 fest_n100000000_p4_run3: wall 7.791 s, intern 5.805765 s, pi=3.1416153200, valid=yes
+23:11:22 fest_n100000000_p8_run3: wall 5.203 s, intern 3.169688 s, pi=3.1416586000, valid=yes
+23:11:31 fest_n100000000_p16_run3: wall 4.049 s, intern 1.656186 s, pi=3.1416639200, valid=yes
+23:11:44 fest_n100000000_p32_run3: wall 3.059 s, intern 0.859082 s, pi=3.1416039600, valid=yes
+23:13:59 fest_n1000000000_p1_run3: wall 133.439 s, intern 131.921517 s, pi=3.1416727800, valid=yes
+23:15:16 fest_n1000000000_p2_run3: wall 75.589 s, intern 73.991979 s, pi=3.1416414080, valid=yes
+23:16:12 fest_n1000000000_p4_run3: wall 54.538 s, intern 52.561698 s, pi=3.1416480920, valid=yes
+23:16:43 fest_n1000000000_p8_run3: wall 28.722 s, intern 26.656034 s, pi=3.1416888560, valid=yes
+23:17:04 fest_n1000000000_p16_run3: wall 15.685 s, intern 13.577953 s, pi=3.1415856040, valid=yes
+23:17:24 fest_n1000000000_p32_run3: wall 9.198 s, intern 7.022138 s, pi=3.1415937560, valid=yes
+23:17:33 wachsend_n50000000_p1_run3: wall 8.149 s, intern 6.628682 s, pi=3.1419068800, valid=yes
+23:17:44 wachsend_n100000000_p2_run3: wall 9.896 s, intern 8.297957 s, pi=3.1417443200, valid=yes
+23:17:58 wachsend_n200000000_p4_run3: wall 12.748 s, intern 10.752849 s, pi=3.1417823800, valid=yes
+23:18:14 wachsend_n400000000_p8_run3: wall 13.047 s, intern 11.032042 s, pi=3.1416576000, valid=yes
+23:18:32 wachsend_n800000000_p16_run3: wall 13.293 s, intern 11.200380 s, pi=3.1415966400, valid=yes
+23:18:56 wachsend_n1600000000_p32_run3: wall 13.203 s, intern 11.042461 s, pi=3.1415884500, valid=yes
+23:18:59 fest_n1000000_p1_run4: wall 1.656 s, intern 0.163376 s, pi=3.1411520000, valid=yes
+23:19:02 fest_n1000000_p2_run4: wall 1.722 s, intern 0.101334 s, pi=3.1414800000, valid=yes
+23:19:05 fest_n1000000_p4_run4: wall 2.025 s, intern 0.078396 s, pi=3.1411960000, valid=yes
+23:19:10 fest_n1000000_p8_run4: wall 2.153 s, intern 0.043188 s, pi=3.1391640000, valid=yes
+23:19:17 fest_n1000000_p16_run4: wall 2.129 s, intern 0.030587 s, pi=3.1386400000, valid=yes
+23:19:29 fest_n1000000_p32_run4: wall 2.173 s, intern 0.023103 s, pi=3.1402400000, valid=yes
+23:19:33 fest_n10000000_p1_run4: wall 2.875 s, intern 1.367089 s, pi=3.1410252000, valid=yes
+23:19:37 fest_n10000000_p2_run4: wall 2.466 s, intern 0.884853 s, pi=3.1414808000, valid=yes
+23:19:40 fest_n10000000_p4_run4: wall 2.605 s, intern 0.694699 s, pi=3.1420184000, valid=yes
+23:19:46 fest_n10000000_p8_run4: wall 2.443 s, intern 0.379510 s, pi=3.1419712000, valid=yes
+23:19:52 fest_n10000000_p16_run4: wall 2.263 s, intern 0.202877 s, pi=3.1415140000, valid=yes
+23:20:05 fest_n10000000_p32_run4: wall 2.264 s, intern 0.106588 s, pi=3.1411560000, valid=yes
+23:20:21 fest_n100000000_p1_run4: wall 14.721 s, intern 13.227015 s, pi=3.1416802400, valid=yes
+23:20:32 fest_n100000000_p2_run4: wall 9.924 s, intern 8.309472 s, pi=3.1414982000, valid=yes
+23:20:41 fest_n100000000_p4_run4: wall 7.557 s, intern 5.600710 s, pi=3.1415120000, valid=yes
+23:20:48 fest_n100000000_p8_run4: wall 5.011 s, intern 2.977875 s, pi=3.1419448400, valid=yes
+23:20:57 fest_n100000000_p16_run4: wall 3.752 s, intern 1.627070 s, pi=3.1415242800, valid=yes
+23:21:10 fest_n100000000_p32_run4: wall 3.047 s, intern 0.880143 s, pi=3.1416906400, valid=yes
+23:23:25 fest_n1000000000_p1_run4: wall 133.519 s, intern 131.983377 s, pi=3.1416133040, valid=yes
+23:24:42 fest_n1000000000_p2_run4: wall 75.806 s, intern 74.190094 s, pi=3.1416509480, valid=yes
+23:25:38 fest_n1000000000_p4_run4: wall 54.175 s, intern 52.207200 s, pi=3.1416085720, valid=yes
+23:26:09 fest_n1000000000_p8_run4: wall 28.883 s, intern 26.847113 s, pi=3.1416387000, valid=yes
+23:26:30 fest_n1000000000_p16_run4: wall 16.083 s, intern 14.057045 s, pi=3.1416139040, valid=yes
+23:26:50 fest_n1000000000_p32_run4: wall 9.378 s, intern 7.175079 s, pi=3.1416636640, valid=yes
+23:26:59 wachsend_n50000000_p1_run4: wall 8.110 s, intern 6.622841 s, pi=3.1416044000, valid=yes
+23:27:10 wachsend_n100000000_p2_run4: wall 9.917 s, intern 8.292595 s, pi=3.1414982000, valid=yes
+23:27:24 wachsend_n200000000_p4_run4: wall 12.682 s, intern 10.706916 s, pi=3.1415691600, valid=yes
+23:27:40 wachsend_n400000000_p8_run4: wall 13.117 s, intern 11.135802 s, pi=3.1416807700, valid=yes
+23:27:58 wachsend_n800000000_p16_run4: wall 13.242 s, intern 11.194979 s, pi=3.1415869050, valid=yes
+23:28:21 wachsend_n1600000000_p32_run4: wall 13.445 s, intern 11.253486 s, pi=3.1416150300, valid=yes
+23:28:24 fest_n1000000_p1_run5: wall 1.656 s, intern 0.165133 s, pi=3.1397200000, valid=yes
+23:28:27 fest_n1000000_p2_run5: wall 1.675 s, intern 0.100420 s, pi=3.1434720000, valid=yes
+23:28:31 fest_n1000000_p4_run5: wall 1.980 s, intern 0.077899 s, pi=3.1424960000, valid=yes
+23:28:35 fest_n1000000_p8_run5: wall 2.043 s, intern 0.044013 s, pi=3.1399200000, valid=yes
+23:28:42 fest_n1000000_p16_run5: wall 2.138 s, intern 0.027899 s, pi=3.1413920000, valid=yes
+23:28:54 fest_n1000000_p32_run5: wall 2.177 s, intern 0.023827 s, pi=3.1405560000, valid=yes
+23:28:58 fest_n10000000_p1_run5: wall 2.852 s, intern 1.371967 s, pi=3.1416752000, valid=yes
+23:29:02 fest_n10000000_p2_run5: wall 2.446 s, intern 0.878386 s, pi=3.1411492000, valid=yes
+23:29:06 fest_n10000000_p4_run5: wall 2.680 s, intern 0.699650 s, pi=3.1414164000, valid=yes
+23:29:11 fest_n10000000_p8_run5: wall 2.404 s, intern 0.375726 s, pi=3.1415556000, valid=yes
+23:29:18 fest_n10000000_p16_run5: wall 2.280 s, intern 0.198153 s, pi=3.1416992000, valid=yes
+23:29:30 fest_n10000000_p32_run5: wall 2.317 s, intern 0.111767 s, pi=3.1425056000, valid=yes
+23:29:46 fest_n100000000_p1_run5: wall 14.759 s, intern 13.239536 s, pi=3.1416928000, valid=yes
+23:29:57 fest_n100000000_p2_run5: wall 9.802 s, intern 8.212813 s, pi=3.1417917600, valid=yes
+23:30:06 fest_n100000000_p4_run5: wall 7.466 s, intern 5.462401 s, pi=3.1418152400, valid=yes
+23:30:14 fest_n100000000_p8_run5: wall 5.071 s, intern 2.988453 s, pi=3.1416161600, valid=yes
+23:30:22 fest_n100000000_p16_run5: wall 3.705 s, intern 1.589091 s, pi=3.1415572400, valid=yes
+23:30:35 fest_n100000000_p32_run5: wall 3.018 s, intern 0.878078 s, pi=3.1416915200, valid=yes
+23:32:50 fest_n1000000000_p1_run5: wall 133.401 s, intern 131.900111 s, pi=3.1416049480, valid=yes
+23:34:15 fest_n1000000000_p2_run5: wall 84.076 s, intern 82.468275 s, pi=3.1416581280, valid=yes
+23:35:11 fest_n1000000000_p4_run5: wall 54.556 s, intern 52.580435 s, pi=3.1415976200, valid=yes
+23:35:42 fest_n1000000000_p8_run5: wall 28.474 s, intern 26.449748 s, pi=3.1416499760, valid=yes
+23:36:03 fest_n1000000000_p16_run5: wall 15.878 s, intern 13.800002 s, pi=3.1415984640, valid=yes
+23:36:23 fest_n1000000000_p32_run5: wall 9.477 s, intern 7.290460 s, pi=3.1415736040, valid=yes
+23:36:33 wachsend_n50000000_p1_run5: wall 8.152 s, intern 6.633101 s, pi=3.1416834400, valid=yes
+23:36:43 wachsend_n100000000_p2_run5: wall 9.433 s, intern 7.817869 s, pi=3.1417917600, valid=yes
+23:36:57 wachsend_n200000000_p4_run5: wall 12.798 s, intern 10.836494 s, pi=3.1417658800, valid=yes
+23:37:13 wachsend_n400000000_p8_run5: wall 12.847 s, intern 10.894505 s, pi=3.1416803400, valid=yes
+23:37:31 wachsend_n800000000_p16_run5: wall 13.190 s, intern 11.125986 s, pi=3.1415868900, valid=yes
+23:37:53 wachsend_n1600000000_p32_run5: wall 13.240 s, intern 11.047794 s, pi=3.1415547650, valid=yes
+Series finished Fri Nov 13 23:37:53 CET 2026: 150 runs, 0 not valid

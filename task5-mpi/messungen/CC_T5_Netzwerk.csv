@@ -1,0 +1,10 @@
+datum,werkzeug,sender,empfaenger,dauer_s,lauf,bandbreite_mbit_s,notiz
+2026-10-31,iperf3,worker2,worker1,10,1,94.1,TCP; Desktop lief; keine Last
+2026-10-31,iperf3,worker2,worker1,10,2,94.1,TCP; Desktop lief; keine Last
+2026-10-31,iperf3,worker2,worker1,10,3,94.0,TCP; Desktop lief; keine Last
+2026-10-31,iperf3,master,worker1,10,1,94.1,TCP; master Gigabit; worker1 100 Mbit
+2026-10-31,iperf3,master,worker1,10,2,94.1,TCP; master Gigabit; worker1 100 Mbit
+2026-10-31,iperf3,master,worker1,10,3,94.1,TCP; master Gigabit; worker1 100 Mbit
+2026-10-31,iperf3,worker1,master,10,1,94.0,TCP; Gegenrichtung mit -R
+2026-10-31,iperf3,worker1,master,10,2,94.0,TCP; Gegenrichtung mit -R
+2026-10-31,iperf3,worker1,master,10,3,94.0,TCP; Gegenrichtung mit -R

@@ -13,10 +13,12 @@ MEM_GB=0.905     # main memory of one Raspberry Pi 3 (free -m: 905 MB), written 
 # fell to about 22 MB and one worker rebooted (see section 10), so 0.7 leaves about 140 MB more.
 R=${R:-0.7}
 RUNS=${RUNS:-5}
-NB_SWEEP=${NB_SWEEP:-"16 32 64 128 256"}
+NB_SWEEP=${NB_SWEEP-"16 32 64 128 256"}   # set but empty (NB_SWEEP="") skips the sweep
 # single heat test run (8 workers, NB 128, no series):
 #   NB_SWEEP=128 RUNS=0 bash /opt/mpi/hpl/hpl_series.sh
-WORKER_COUNTS="1 2 4 8"
+# repeat single configurations later without a new sweep, e.g.:
+#   NB_SWEEP="" BEST_NB=64 WORKER_COUNTS="4" RUNS=3 bash /opt/mpi/hpl/hpl_series.sh
+WORKER_COUNTS=${WORKER_COUNTS:-"1 2 4 8"}
 # OPENBLAS_CORETYPE=ARMV8: the Cortex-A53 kernels of OpenBLAS 0.3.29 gave wrong results (see section 10)
 MPI_OPTS="--mca btl_tcp_if_include eth0 --prtemca oob_tcp_if_include eth0 -x OPENBLAS_NUM_THREADS=1 -x OPENBLAS_CORETYPE=ARMV8 -x LC_ALL"
 
@@ -117,11 +119,13 @@ for nb in $NB_SWEEP; do
     run_hpl nb_sweep 8 "$nb" 1
 done
 
-# best NB = highest GFLOPS among the passed runs of the sweep
-BEST_NB=$(awk -F, '$3 == "nb_sweep" && $12 ~ /check=PASSED/ {
-    split($12, a, ";"); sub("NB=", "", a[1])
-    if ($11 + 0 > max) { max = $11 + 0; nb = a[1] }
-} END { print nb }' "$CSV")
+# best NB = highest GFLOPS among the passed runs of the sweep, unless given from outside (BEST_NB=64)
+if [ -z "$BEST_NB" ]; then
+    BEST_NB=$(awk -F, '$3 == "nb_sweep" && $12 ~ /check=PASSED/ {
+        split($12, a, ";"); sub("NB=", "", a[1])
+        if ($11 + 0 > max) { max = $11 + 0; nb = a[1] }
+    } END { print nb }' "$CSV")
+fi
 BEST_NB=${BEST_NB:-128}
 echo "best NB: $BEST_NB"
 

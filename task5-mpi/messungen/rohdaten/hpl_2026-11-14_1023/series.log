@@ -1,0 +1,15 @@
+HPL series started Sat Nov 14 10:23:42 CET 2026, results in /opt/mpi/results/hpl_2026-11-14_1023
+best NB: 64
+10:23:44 start series_w2_nb64_run1: N=10880 NB=64 P=2 Q=4
+10:25:47 done  series_w2_nb64_run1: 115.86 s, 7.4120e+00 GFLOPS, PASSED
+10:25:51 start series_w4_nb64_run1: N=15424 NB=64 P=2 Q=8
+10:29:32 done  series_w4_nb64_run1: 210.30 s, 1.1634e+01 GFLOPS, PASSED
+10:29:34 start series_w2_nb64_run2: N=10880 NB=64 P=2 Q=4
+10:31:37 done  series_w2_nb64_run2: 116.11 s, 7.3960e+00 GFLOPS, PASSED
+10:31:42 start series_w4_nb64_run2: N=15424 NB=64 P=2 Q=8
+10:35:21 done  series_w4_nb64_run2: 210.49 s, 1.1623e+01 GFLOPS, PASSED
+10:35:24 start series_w2_nb64_run3: N=10880 NB=64 P=2 Q=4
+10:37:27 done  series_w2_nb64_run3: 116.27 s, 7.3862e+00 GFLOPS, PASSED
+10:37:31 start series_w4_nb64_run3: N=15424 NB=64 P=2 Q=8
+10:41:09 done  series_w4_nb64_run3: 208.10 s, 1.1757e+01 GFLOPS, PASSED
+HPL series finished Sat Nov 14 10:41:09 CET 2026

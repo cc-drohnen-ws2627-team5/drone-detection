@@ -1,0 +1,5 @@
+HPL series started Fri Nov 13 20:48:19 CET 2026, results in /opt/mpi/results/hpl_2026-11-13_2048
+20:48:28 start nb_sweep_w8_nb128_run1: N=21760 NB=128 P=4 Q=8
+20:55:00 done  nb_sweep_w8_nb128_run1: 378.48 s, 1.8150e+01 GFLOPS, PASSED
+best NB: 128
+HPL series finished Fri Nov 13 20:55:00 CET 2026

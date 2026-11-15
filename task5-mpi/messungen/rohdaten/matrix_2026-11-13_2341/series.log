@@ -1,0 +1,165 @@
+Series matrix started Fri Nov 13 23:41:33 CET 2026, results in /opt/mpi/results/matrix_2026-11-13_2341
+RUNS=5 PROCS=1 2 4 8 16 32 KINDS=fest wachsend SIZES=512 1024 2048 3072 PER_PROC= GROW=1:1024 2:1290 4:1624 8:2048 16:2576 32:3264 PAUSE=0
+mpirun (Open MPI) 5.0.7
+mpi4py 4.0.3 numpy 2.2.4
+worker1: throttled=0x0  23:41:34 up  3:14,  2 users,  load average: 0.19, 1.31, 1.84 
+worker2: throttled=0x0  23:41:35 up  3:14,  2 users,  load average: 0.11, 0.63, 0.89 
+worker3: throttled=0x50000  23:41:36 up  3:13,  2 users,  load average: 0.10, 0.38, 0.52 
+  worker3: throttling bits set since boot (a reboot resets them)
+worker4: throttled=0x0  23:41:37 up  2:41,  2 users,  load average: 0.09, 0.34, 0.47 
+worker5: throttled=0x0  23:41:39 up  3:13,  2 users,  load average: 0.08, 0.22, 0.26 
+worker6: throttled=0x0  23:41:40 up  3:13,  2 users,  load average: 0.04, 0.17, 0.21 
+worker7: throttled=0x50000  23:41:41 up  3:13,  2 users,  load average: 0.01, 0.13, 0.22 
+  worker7: throttling bits set since boot (a reboot resets them)
+worker8: throttled=0x0  23:41:43 up  3:13,  2 users,  load average: 0.07, 0.20, 0.22 
+23:41:46 fest_n512_p1_run1: wall 1.686 s, intern 0.173316 s, gflops=1.548825, valid=yes
+23:41:49 fest_n512_p2_run1: wall 1.673 s, intern 0.104643 s, gflops=2.565261, valid=yes
+23:41:52 fest_n512_p4_run1: wall 2.024 s, intern 0.092337 s, gflops=2.907143, valid=yes
+23:41:57 fest_n512_p8_run1: wall 2.369 s, intern 0.458121 s, gflops=0.585949, valid=yes
+23:42:05 fest_n512_p16_run1: wall 2.878 s, intern 0.866971 s, gflops=0.309624, valid=yes
+23:42:18 fest_n512_p32_run1: wall 3.013 s, intern 0.976769 s, gflops=0.274820, valid=yes
+23:42:23 fest_n1024_p1_run1: wall 2.909 s, intern 1.293397 s, gflops=1.660344, valid=yes
+23:42:26 fest_n1024_p2_run1: wall 2.380 s, intern 0.719800 s, gflops=2.983444, valid=yes
+23:42:30 fest_n1024_p4_run1: wall 2.682 s, intern 0.657938 s, gflops=3.263963, valid=yes
+23:42:37 fest_n1024_p8_run1: wall 3.866 s, intern 1.920899 s, gflops=1.117958, valid=yes
+23:42:47 fest_n1024_p16_run1: wall 5.450 s, intern 3.421704 s, gflops=0.627607, valid=yes
+23:43:03 fest_n1024_p32_run1: wall 5.746 s, intern 3.616987 s, gflops=0.593722, valid=yes
+23:43:16 fest_n2048_p1_run1: wall 11.951 s, intern 9.947402 s, gflops=1.727071, valid=yes
+23:43:25 fest_n2048_p2_run1: wall 7.348 s, intern 5.276617 s, gflops=3.255849, valid=yes
+23:43:34 fest_n2048_p4_run1: wall 7.708 s, intern 5.313516 s, gflops=3.233239, valid=yes
+23:43:48 fest_n2048_p8_run1: wall 11.192 s, intern 8.854727 s, gflops=1.940192, valid=yes
+23:44:09 fest_n2048_p16_run1: wall 16.491 s, intern 14.147698 s, gflops=1.214323, valid=yes
+23:44:37 fest_n2048_p32_run1: wall 16.908 s, intern 14.456838 s, gflops=1.188356, valid=yes
+23:45:14 fest_n3072_p1_run1: wall 35.728 s, intern 33.129933 s, gflops=1.750141, valid=yes
+23:45:35 fest_n3072_p2_run1: wall 20.031 s, intern 17.307351 s, gflops=3.350141, valid=yes
+23:45:57 fest_n3072_p4_run1: wall 20.284 s, intern 17.300999 s, gflops=3.351371, valid=yes
+23:46:25 fest_n3072_p8_run1: wall 25.599 s, intern 22.693864 s, gflops=2.554966, valid=yes
+23:47:06 fest_n3072_p16_run1: wall 36.148 s, intern 33.159342 s, gflops=1.748589, valid=yes
+23:47:52 fest_n3072_p32_run1: wall 36.143 s, intern 33.111779 s, gflops=1.751101, valid=yes
+23:47:56 wachsend_n1024_p1_run1: wall 2.931 s, intern 1.293932 s, gflops=1.659657, valid=yes
+23:48:01 wachsend_n1290_p2_run1: wall 3.203 s, intern 1.382253 s, gflops=3.106073, valid=yes
+23:48:07 wachsend_n1624_p4_run1: wall 4.630 s, intern 2.462101 s, gflops=3.479222, valid=yes
+23:48:21 wachsend_n2048_p8_run1: wall 11.238 s, intern 8.881279 s, gflops=1.934391, valid=yes
+23:48:51 wachsend_n2576_p16_run1: wall 25.475 s, intern 22.826170 s, gflops=1.497733, valid=yes
+23:49:42 wachsend_n3264_p32_run1: wall 40.562 s, intern 37.398987 s, gflops=1.859605, valid=yes
+23:49:45 fest_n512_p1_run2: wall 1.676 s, intern 0.174810 s, gflops=1.535585, valid=yes
+23:49:48 fest_n512_p2_run2: wall 1.660 s, intern 0.104735 s, gflops=2.563002, valid=yes
+23:49:51 fest_n512_p4_run2: wall 2.021 s, intern 0.092528 s, gflops=2.901127, valid=yes
+23:49:56 fest_n512_p8_run2: wall 2.405 s, intern 0.455988 s, gflops=0.588690, valid=yes
+23:50:04 fest_n512_p16_run2: wall 2.789 s, intern 0.874661 s, gflops=0.306902, valid=yes
+23:50:17 fest_n512_p32_run2: wall 3.346 s, intern 1.341395 s, gflops=0.200117, valid=yes
+23:50:21 fest_n1024_p1_run2: wall 2.905 s, intern 1.292955 s, gflops=1.660912, valid=yes
+23:50:25 fest_n1024_p2_run2: wall 2.383 s, intern 0.719354 s, gflops=2.985296, valid=yes
+23:50:29 fest_n1024_p4_run2: wall 2.717 s, intern 0.651990 s, gflops=3.293739, valid=yes
+23:50:36 fest_n1024_p8_run2: wall 3.882 s, intern 1.905839 s, gflops=1.126791, valid=yes
+23:50:46 fest_n1024_p16_run2: wall 5.417 s, intern 3.429886 s, gflops=0.626109, valid=yes
+23:51:02 fest_n1024_p32_run2: wall 5.710 s, intern 3.606288 s, gflops=0.595483, valid=yes
+23:51:15 fest_n2048_p1_run2: wall 11.930 s, intern 9.947946 s, gflops=1.726977, valid=yes
+23:51:24 fest_n2048_p2_run2: wall 7.385 s, intern 5.287875 s, gflops=3.248918, valid=yes
+23:51:33 fest_n2048_p4_run2: wall 7.673 s, intern 5.307130 s, gflops=3.237130, valid=yes
+23:51:47 fest_n2048_p8_run2: wall 11.202 s, intern 8.849709 s, gflops=1.941292, valid=yes
+23:52:09 fest_n2048_p16_run2: wall 16.518 s, intern 14.168047 s, gflops=1.212578, valid=yes
+23:52:36 fest_n2048_p32_run2: wall 16.889 s, intern 14.443848 s, gflops=1.189425, valid=yes
+23:53:13 fest_n3072_p1_run2: wall 35.710 s, intern 33.122667 s, gflops=1.750525, valid=yes
+23:53:34 fest_n3072_p2_run2: wall 20.004 s, intern 17.309335 s, gflops=3.349757, valid=yes
+23:53:56 fest_n3072_p4_run2: wall 20.241 s, intern 17.251511 s, gflops=3.360984, valid=yes
+23:54:24 fest_n3072_p8_run2: wall 25.555 s, intern 22.626238 s, gflops=2.562603, valid=yes
+23:55:05 fest_n3072_p16_run2: wall 36.119 s, intern 33.138791 s, gflops=1.749673, valid=yes
+23:55:51 fest_n3072_p32_run2: wall 36.077 s, intern 33.079060 s, gflops=1.752833, valid=yes
+23:55:56 wachsend_n1024_p1_run2: wall 2.907 s, intern 1.294352 s, gflops=1.659119, valid=yes
+23:56:00 wachsend_n1290_p2_run2: wall 3.125 s, intern 1.383039 s, gflops=3.104307, valid=yes
+23:56:06 wachsend_n1624_p4_run2: wall 4.677 s, intern 2.496979 s, gflops=3.430625, valid=yes
+23:56:20 wachsend_n2048_p8_run2: wall 11.148 s, intern 8.853483 s, gflops=1.940465, valid=yes
+23:56:50 wachsend_n2576_p16_run2: wall 25.486 s, intern 22.818830 s, gflops=1.498215, valid=yes
+23:57:41 wachsend_n3264_p32_run2: wall 40.612 s, intern 37.399209 s, gflops=1.859594, valid=yes
+23:57:44 fest_n512_p1_run3: wall 1.722 s, intern 0.173904 s, gflops=1.543580, valid=yes
+23:57:47 fest_n512_p2_run3: wall 1.670 s, intern 0.104778 s, gflops=2.561941, valid=yes
+23:57:50 fest_n512_p4_run3: wall 2.046 s, intern 0.095669 s, gflops=2.805875, valid=yes
+23:57:55 fest_n512_p8_run3: wall 2.413 s, intern 0.475029 s, gflops=0.565092, valid=yes
+23:58:03 fest_n512_p16_run3: wall 2.848 s, intern 0.860673 s, gflops=0.311890, valid=yes
+23:58:16 fest_n512_p32_run3: wall 3.004 s, intern 0.990581 s, gflops=0.270988, valid=yes
+23:58:20 fest_n1024_p1_run3: wall 2.895 s, intern 1.293279 s, gflops=1.660495, valid=yes
+23:58:24 fest_n1024_p2_run3: wall 2.394 s, intern 0.719842 s, gflops=2.983270, valid=yes
+23:58:28 fest_n1024_p4_run3: wall 2.693 s, intern 0.657704 s, gflops=3.265122, valid=yes
+23:58:34 fest_n1024_p8_run3: wall 3.822 s, intern 1.914342 s, gflops=1.121787, valid=yes
+23:58:45 fest_n1024_p16_run3: wall 5.436 s, intern 3.419310 s, gflops=0.628046, valid=yes
+23:59:00 fest_n1024_p32_run3: wall 5.705 s, intern 3.596661 s, gflops=0.597077, valid=yes
+23:59:14 fest_n2048_p1_run3: wall 11.899 s, intern 9.947999 s, gflops=1.726967, valid=yes
+23:59:22 fest_n2048_p2_run3: wall 7.320 s, intern 5.283113 s, gflops=3.251846, valid=yes
+23:59:31 fest_n2048_p4_run3: wall 7.713 s, intern 5.318276 s, gflops=3.230345, valid=yes
+23:59:45 fest_n2048_p8_run3: wall 11.131 s, intern 8.837694 s, gflops=1.943931, valid=yes
+00:00:06 fest_n2048_p16_run3: wall 16.547 s, intern 14.184611 s, gflops=1.211163, valid=yes
+00:00:34 fest_n2048_p32_run3: wall 16.945 s, intern 14.503771 s, gflops=1.184510, valid=yes
+00:01:11 fest_n3072_p1_run3: wall 35.756 s, intern 33.149762 s, gflops=1.749094, valid=yes
+00:01:32 fest_n3072_p2_run3: wall 20.031 s, intern 17.307425 s, gflops=3.350126, valid=yes
+00:01:54 fest_n3072_p4_run3: wall 20.361 s, intern 17.328915 s, gflops=3.345972, valid=yes
+00:02:22 fest_n3072_p8_run3: wall 25.563 s, intern 22.654809 s, gflops=2.559371, valid=yes
+00:03:03 fest_n3072_p16_run3: wall 36.077 s, intern 33.123354 s, gflops=1.750489, valid=yes
+00:03:49 fest_n3072_p32_run3: wall 36.171 s, intern 33.194517 s, gflops=1.746736, valid=yes
+00:03:53 wachsend_n1024_p1_run3: wall 2.920 s, intern 1.293526 s, gflops=1.660178, valid=yes
+00:03:58 wachsend_n1290_p2_run3: wall 3.186 s, intern 1.381440 s, gflops=3.107901, valid=yes
+00:04:04 wachsend_n1624_p4_run3: wall 4.584 s, intern 2.444988 s, gflops=3.503574, valid=yes
+00:04:17 wachsend_n2048_p8_run3: wall 11.222 s, intern 8.894888 s, gflops=1.931432, valid=yes
+00:04:48 wachsend_n2576_p16_run3: wall 25.451 s, intern 22.816592 s, gflops=1.498362, valid=yes
+00:05:39 wachsend_n3264_p32_run3: wall 40.636 s, intern 37.483699 s, gflops=1.855402, valid=yes
+00:05:42 fest_n512_p1_run4: wall 1.671 s, intern 0.174462 s, gflops=1.538650, valid=yes
+00:05:45 fest_n512_p2_run4: wall 1.684 s, intern 0.104627 s, gflops=2.565640, valid=yes
+00:05:48 fest_n512_p4_run4: wall 2.035 s, intern 0.096902 s, gflops=2.770170, valid=yes
+00:05:53 fest_n512_p8_run4: wall 2.361 s, intern 0.461410 s, gflops=0.581772, valid=yes
+00:06:01 fest_n512_p16_run4: wall 2.905 s, intern 0.867136 s, gflops=0.309566, valid=yes
+00:06:14 fest_n512_p32_run4: wall 2.998 s, intern 0.970832 s, gflops=0.276500, valid=yes
+00:06:18 fest_n1024_p1_run4: wall 2.910 s, intern 1.294815 s, gflops=1.658526, valid=yes
+00:06:22 fest_n1024_p2_run4: wall 2.393 s, intern 0.719689 s, gflops=2.983904, valid=yes
+00:06:26 fest_n1024_p4_run4: wall 2.679 s, intern 0.648007 s, gflops=3.313983, valid=yes
+00:06:32 fest_n1024_p8_run4: wall 3.814 s, intern 1.907418 s, gflops=1.125859, valid=yes
+00:06:43 fest_n1024_p16_run4: wall 5.462 s, intern 3.431440 s, gflops=0.625826, valid=yes
+00:06:59 fest_n1024_p32_run4: wall 5.667 s, intern 3.604853 s, gflops=0.595720, valid=yes
+00:07:12 fest_n2048_p1_run4: wall 11.973 s, intern 9.950482 s, gflops=1.726536, valid=yes
+00:07:21 fest_n2048_p2_run4: wall 7.369 s, intern 5.277623 s, gflops=3.255229, valid=yes
+00:07:30 fest_n2048_p4_run4: wall 7.691 s, intern 5.378418 s, gflops=3.194223, valid=yes
+00:07:44 fest_n2048_p8_run4: wall 11.236 s, intern 8.879871 s, gflops=1.934698, valid=yes
+00:08:05 fest_n2048_p16_run4: wall 16.474 s, intern 14.138393 s, gflops=1.215122, valid=yes
+00:08:32 fest_n2048_p32_run4: wall 17.227 s, intern 14.748274 s, gflops=1.164873, valid=yes
+00:09:09 fest_n3072_p1_run4: wall 35.756 s, intern 33.159120 s, gflops=1.748601, valid=yes
+00:09:31 fest_n3072_p2_run4: wall 19.991 s, intern 17.301862 s, gflops=3.351203, valid=yes
+00:09:52 fest_n3072_p4_run4: wall 20.428 s, intern 17.363707 s, gflops=3.339267, valid=yes
+00:10:21 fest_n3072_p8_run4: wall 25.496 s, intern 22.563527 s, gflops=2.569725, valid=yes
+00:11:02 fest_n3072_p16_run4: wall 36.145 s, intern 33.090793 s, gflops=1.752211, valid=yes
+00:11:48 fest_n3072_p32_run4: wall 36.122 s, intern 33.093337 s, gflops=1.752076, valid=yes
+00:11:52 wachsend_n1024_p1_run4: wall 2.883 s, intern 1.293362 s, gflops=1.660388, valid=yes
+00:11:57 wachsend_n1290_p2_run4: wall 3.120 s, intern 1.382249 s, gflops=3.106081, valid=yes
+00:12:03 wachsend_n1624_p4_run4: wall 4.720 s, intern 2.494969 s, gflops=3.433388, valid=yes
+00:12:17 wachsend_n2048_p8_run4: wall 11.191 s, intern 8.854765 s, gflops=1.940184, valid=yes
+00:12:47 wachsend_n2576_p16_run4: wall 25.534 s, intern 22.860916 s, gflops=1.495457, valid=yes
+00:13:38 wachsend_n3264_p32_run4: wall 40.547 s, intern 37.373821 s, gflops=1.860857, valid=yes
+00:13:41 fest_n512_p1_run5: wall 1.710 s, intern 0.174443 s, gflops=1.538816, valid=yes
+00:13:44 fest_n512_p2_run5: wall 1.697 s, intern 0.104885 s, gflops=2.559334, valid=yes
+00:13:47 fest_n512_p4_run5: wall 2.001 s, intern 0.098608 s, gflops=2.722235, valid=yes
+00:13:52 fest_n512_p8_run5: wall 2.430 s, intern 0.468054 s, gflops=0.573513, valid=yes
+00:14:00 fest_n512_p16_run5: wall 2.835 s, intern 0.880642 s, gflops=0.304818, valid=yes
+00:14:13 fest_n512_p32_run5: wall 3.015 s, intern 0.983458 s, gflops=0.272951, valid=yes
+00:14:17 fest_n1024_p1_run5: wall 2.910 s, intern 1.293137 s, gflops=1.660677, valid=yes
+00:14:21 fest_n1024_p2_run5: wall 2.379 s, intern 0.719303 s, gflops=2.985505, valid=yes
+00:14:25 fest_n1024_p4_run5: wall 2.722 s, intern 0.670291 s, gflops=3.203808, valid=yes
+00:14:31 fest_n1024_p8_run5: wall 3.891 s, intern 1.902445 s, gflops=1.128802, valid=yes
+00:14:42 fest_n1024_p16_run5: wall 5.407 s, intern 3.429412 s, gflops=0.626196, valid=yes
+00:14:58 fest_n1024_p32_run5: wall 5.724 s, intern 3.596956 s, gflops=0.597028, valid=yes
+00:15:11 fest_n2048_p1_run5: wall 11.940 s, intern 9.948649 s, gflops=1.726855, valid=yes
+00:15:20 fest_n2048_p2_run5: wall 7.390 s, intern 5.302434 s, gflops=3.239997, valid=yes
+00:15:29 fest_n2048_p4_run5: wall 7.703 s, intern 5.318108 s, gflops=3.230447, valid=yes
+00:15:43 fest_n2048_p8_run5: wall 11.168 s, intern 8.836144 s, gflops=1.944272, valid=yes
+00:16:04 fest_n2048_p16_run5: wall 16.494 s, intern 14.138086 s, gflops=1.215148, valid=yes
+00:16:32 fest_n2048_p32_run5: wall 16.901 s, intern 14.457687 s, gflops=1.188286, valid=yes
+00:17:09 fest_n3072_p1_run5: wall 35.720 s, intern 33.130373 s, gflops=1.750118, valid=yes
+00:17:30 fest_n3072_p2_run5: wall 19.996 s, intern 17.305699 s, gflops=3.350460, valid=yes
+00:17:52 fest_n3072_p4_run5: wall 20.249 s, intern 17.268215 s, gflops=3.357733, valid=yes
+00:18:20 fest_n3072_p8_run5: wall 25.544 s, intern 22.612327 s, gflops=2.564179, valid=yes
+00:19:01 fest_n3072_p16_run5: wall 36.069 s, intern 33.115483 s, gflops=1.750905, valid=yes
+00:19:47 fest_n3072_p32_run5: wall 36.091 s, intern 33.072043 s, gflops=1.753205, valid=yes
+00:19:51 wachsend_n1024_p1_run5: wall 2.903 s, intern 1.292201 s, gflops=1.661880, valid=yes
+00:19:55 wachsend_n1290_p2_run5: wall 3.131 s, intern 1.383453 s, gflops=3.103378, valid=yes
+00:20:01 wachsend_n1624_p4_run5: wall 4.689 s, intern 2.505787 s, gflops=3.418565, valid=yes
+00:20:15 wachsend_n2048_p8_run5: wall 11.158 s, intern 8.858614 s, gflops=1.939341, valid=yes
+00:20:46 wachsend_n2576_p16_run5: wall 25.561 s, intern 22.874801 s, gflops=1.494549, valid=yes
+00:21:37 wachsend_n3264_p32_run5: wall 40.689 s, intern 37.529627 s, gflops=1.853131, valid=yes
+Series finished Sat Nov 14 00:21:37 CET 2026: 150 runs, 0 not valid

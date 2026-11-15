@@ -1,0 +1,33 @@
+Control measurement started Sat Nov 14 17:39:12 CET 2026, results in /opt/mpi/results/control_2026-11-14_1739
+N=1000000000 PROCS=1 2 4 PLACEMENTS=kompakt verteilt RUNS=5 DRY_RUN=0
+mpirun (Open MPI) 5.0.7
+worker1: throttled=0x0  17:39:13 up 5 min,  3 users,  load average: 0.22, 0.39, 0.20 
+worker2: throttled=0x0  17:39:13 up 5 min,  3 users,  load average: 0.05, 0.26, 0.16 
+worker3: throttled=0x0  17:39:14 up 5 min,  3 users,  load average: 0.07, 0.30, 0.17 
+worker4: throttled=0x0  17:39:15 up 5 min,  3 users,  load average: 0.08, 0.28, 0.16 
+17:41:29 kompakt_n1000000000_p1_run1: hosts worker1:4, wall 133.010 s, intern 131.575785 s, valid=yes
+17:42:54 kompakt_n1000000000_p2_run1: hosts worker1:4, wall 83.867 s, intern 82.293479 s, valid=yes
+17:44:04 verteilt_n1000000000_p2_run1: hosts worker1:1,worker2:1, wall 67.415 s, intern 65.850005 s, valid=yes
+17:45:00 kompakt_n1000000000_p4_run1: hosts worker1:4, wall 54.922 s, intern 52.954722 s, valid=yes
+17:45:40 verteilt_n1000000000_p4_run1: hosts worker1:1,worker2:1,worker3:1,worker4:1, wall 34.877 s, intern 33.306830 s, valid=yes
+17:47:55 kompakt_n1000000000_p1_run2: hosts worker1:4, wall 133.220 s, intern 131.720697 s, valid=yes
+17:49:20 kompakt_n1000000000_p2_run2: hosts worker1:4, wall 83.815 s, intern 82.189731 s, valid=yes
+17:50:30 verteilt_n1000000000_p2_run2: hosts worker1:1,worker2:1, wall 67.418 s, intern 65.899968 s, valid=yes
+17:51:26 kompakt_n1000000000_p4_run2: hosts worker1:4, wall 55.007 s, intern 53.049451 s, valid=yes
+17:52:07 verteilt_n1000000000_p4_run2: hosts worker1:1,worker2:1,worker3:1,worker4:1, wall 34.953 s, intern 33.374740 s, valid=yes
+17:54:21 kompakt_n1000000000_p1_run3: hosts worker1:4, wall 133.361 s, intern 131.754935 s, valid=yes
+17:55:46 kompakt_n1000000000_p2_run3: hosts worker1:4, wall 83.911 s, intern 82.285689 s, valid=yes
+17:56:57 verteilt_n1000000000_p2_run3: hosts worker1:1,worker2:1, wall 67.429 s, intern 65.899411 s, valid=yes
+17:57:52 kompakt_n1000000000_p4_run3: hosts worker1:4, wall 54.446 s, intern 52.457472 s, valid=yes
+17:58:32 verteilt_n1000000000_p4_run3: hosts worker1:1,worker2:1,worker3:1,worker4:1, wall 34.922 s, intern 33.380145 s, valid=yes
+18:00:47 kompakt_n1000000000_p1_run4: hosts worker1:4, wall 133.262 s, intern 131.756731 s, valid=yes
+18:02:12 kompakt_n1000000000_p2_run4: hosts worker1:4, wall 83.983 s, intern 82.378803 s, valid=yes
+18:03:22 verteilt_n1000000000_p2_run4: hosts worker1:1,worker2:1, wall 67.476 s, intern 65.952710 s, valid=yes
+18:04:19 kompakt_n1000000000_p4_run4: hosts worker1:4, wall 55.589 s, intern 53.619786 s, valid=yes
+18:04:59 verteilt_n1000000000_p4_run4: hosts worker1:1,worker2:1,worker3:1,worker4:1, wall 34.790 s, intern 33.238590 s, valid=yes
+18:07:14 kompakt_n1000000000_p1_run5: hosts worker1:4, wall 133.334 s, intern 131.834584 s, valid=yes
+18:08:39 kompakt_n1000000000_p2_run5: hosts worker1:4, wall 83.862 s, intern 82.265852 s, valid=yes
+18:09:49 verteilt_n1000000000_p2_run5: hosts worker1:1,worker2:1, wall 67.465 s, intern 65.940146 s, valid=yes
+18:10:45 kompakt_n1000000000_p4_run5: hosts worker1:4, wall 54.568 s, intern 52.623002 s, valid=yes
+18:11:25 verteilt_n1000000000_p4_run5: hosts worker1:1,worker2:1,worker3:1,worker4:1, wall 34.852 s, intern 33.279200 s, valid=yes
+Control measurement finished Sat Nov 14 18:11:25 CET 2026: 25 runs, 0 not valid

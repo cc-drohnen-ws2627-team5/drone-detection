@@ -1,0 +1,10 @@
+Series pi started Fri Nov 13 20:29:11 CET 2026, results in /opt/mpi/results/pi_2026-11-13_2029
+RUNS=1 PROCS=1 4 8 KINDS=fest SIZES=1000000 PER_PROC=50000000 PAUSE=0
+mpirun (Open MPI) 5.0.7
+mpi4py 4.0.3 numpy 2.2.4
+worker1: throttled=0x0  20:29:13 up 1 min,  2 users,  load average: 0.39, 0.23, 0.09 
+worker2: throttled=0x0  20:29:14 up 1 min,  2 users,  load average: 0.32, 0.20, 0.08 
+20:29:19 fest_n1000000_p1_run1: wall 3.035 s, intern 0.187667 s, pi=3.1444120000, valid=yes
+20:29:22 fest_n1000000_p4_run1: wall 2.004 s, intern 0.080029 s, pi=3.1420600000, valid=yes
+20:29:28 fest_n1000000_p8_run1: wall 3.420 s, intern 0.076681 s, pi=3.1430880000, valid=yes
+Series finished Fri Nov 13 20:29:28 CET 2026: 3 runs, 0 not valid

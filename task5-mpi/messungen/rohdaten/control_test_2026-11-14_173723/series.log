@@ -1,0 +1,13 @@
+Control measurement started Sat Nov 14 17:37:23 CET 2026, results in /opt/mpi/results/control_test_2026-11-14_173723
+N=10000000 PROCS=1 2 4 PLACEMENTS=kompakt verteilt RUNS=1 DRY_RUN=0
+mpirun (Open MPI) 5.0.7
+worker1: throttled=0x0  17:37:23 up 3 min,  3 users,  load average: 0.20, 0.39, 0.18 
+worker2: throttled=0x0  17:37:24 up 3 min,  3 users,  load average: 0.22, 0.37, 0.17 
+worker3: throttled=0x0  17:37:25 up 3 min,  3 users,  load average: 0.29, 0.42, 0.19 
+worker4: throttled=0x0  17:37:25 up 3 min,  3 users,  load average: 0.26, 0.37, 0.17 
+17:37:31 kompakt_n10000000_p1_run1: hosts worker1:4, wall 4.297 s, intern 1.399997 s, valid=yes
+17:37:35 kompakt_n10000000_p2_run1: hosts worker1:4, wall 2.535 s, intern 0.912282 s, valid=yes
+17:37:42 verteilt_n10000000_p2_run1: hosts worker1:1,worker2:1, wall 3.878 s, intern 0.766463 s, valid=yes
+17:37:46 kompakt_n10000000_p4_run1: hosts worker1:4, wall 2.702 s, intern 0.718328 s, valid=yes
+17:37:54 verteilt_n10000000_p4_run1: hosts worker1:1,worker2:1,worker3:1,worker4:1, wall 3.253 s, intern 0.418048 s, valid=yes
+Control measurement finished Sat Nov 14 17:37:54 CET 2026: 5 runs, 0 not valid

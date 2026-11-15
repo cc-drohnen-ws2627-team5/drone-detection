@@ -1,0 +1,9 @@
+HPL series started Sat Oct 31 23:20:47 CET 2026, results in /opt/mpi/results/hpl_2026-10-31_2320
+23:20:56 start nb_sweep_w8_nb16_run1: N=24928 NB=16 P=4 Q=8
+cat: /tmp/mon_vmstat.pid: No such file or directory
+cat: /tmp/mon_throttle.pid: No such file or directory
+awk: cannot open "/tmp/mon_throttle.log" (No such file or directory)
+grep: /tmp/mon_throttle.log: No such file or directory
+awk: cannot open "/tmp/mon_vmstat.log" (No such file or directory)
+23:24:11 done  nb_sweep_w8_nb16_run1: ? s, ? GFLOPS, no result
+23:24:19 start nb_sweep_w8_nb32_run1: N=24928 NB=32 P=4 Q=8
