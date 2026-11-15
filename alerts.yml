@@ -11,3 +11,13 @@ groups:
           summary: "Raspberry Pi {{ $labels.instance }} is offline"
           description: "Node Exporter on {{ $labels.instance }} has been unreachable for more than 1 minute."
   
+
+      - alert: RaspberryPiHighCPU
+        expr: 100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{job="raspberry-pi-cluster",mode="idle"}[5m]))) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage has exceeded 80% for more than 5 minutes."
+  
