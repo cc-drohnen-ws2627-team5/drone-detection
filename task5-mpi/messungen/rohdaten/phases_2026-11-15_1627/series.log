@@ -1,0 +1,102 @@
+Phase measurement started Sun Nov 15 16:27:12 CET 2026, results in /opt/mpi/results/phases_2026-11-15_1627
+SIZES=1024 2048 3072 PROCS=1 2 4 8 16 32 RUNS=5 DRY_RUN=0
+mpirun (Open MPI) 5.0.7
+worker1: throttled=0x0  16:27:13 up 17 min,  2 users,  load average: 1.93, 2.72, 1.64 desktop=inactive available_mb=720 
+worker2: throttled=0x0  16:27:14 up 17 min,  2 users,  load average: 1.79, 2.78, 1.72 desktop=inactive available_mb=662 
+worker3: throttled=0x0  16:27:14 up 17 min,  2 users,  load average: 1.55, 2.58, 1.58 desktop=inactive available_mb=688 
+worker4: throttled=0x0  16:27:15 up 17 min,  2 users,  load average: 1.60, 2.53, 1.55 desktop=inactive available_mb=688 
+worker5: throttled=0x0  16:27:16 up 17 min,  2 users,  load average: 1.59, 2.61, 1.60 desktop=inactive available_mb=692 
+worker6: throttled=0x0  16:27:17 up 17 min,  2 users,  load average: 1.49, 2.51, 1.56 desktop=inactive available_mb=689 
+worker7: throttled=0x0  16:27:17 up 17 min,  2 users,  load average: 1.47, 2.53, 1.56 desktop=inactive available_mb=688 
+worker8: throttled=0x0  16:27:18 up 17 min,  2 users,  load average: 1.40, 2.48, 1.54 desktop=inactive available_mb=691 
+16:27:22 n1024_p1_run1: wall 2.926 s, total 1.293805 s = distribute 0.020075 + compute 1.253886 + collect 0.019845, valid=yes
+16:27:26 n1024_p2_run1: wall 2.384 s, total 0.721296 s = distribute 0.042779 + compute 0.656007 + collect 0.022509, valid=yes
+16:27:30 n1024_p4_run1: wall 2.753 s, total 0.769570 s = distribute 0.086976 + compute 0.654169 + collect 0.028425, valid=yes
+16:27:37 n1024_p8_run1: wall 3.873 s, total 1.921812 s = distribute 1.229172 + compute 0.305734 + collect 0.386906, valid=yes
+16:27:47 n1024_p16_run1: wall 5.438 s, total 3.450682 s = distribute 2.717578 + compute 0.173327 + collect 0.559778, valid=yes
+16:28:03 n1024_p32_run1: wall 5.756 s, total 3.627128 s = distribute 2.871271 + compute 0.112864 + collect 0.642993, valid=yes
+16:28:17 n2048_p1_run1: wall 11.963 s, total 9.959035 s = distribute 0.079387 + compute 9.800099 + collect 0.079549, valid=yes
+16:28:26 n2048_p2_run1: wall 7.400 s, total 5.289630 s = distribute 0.168005 + compute 5.034602 + collect 0.087023, valid=yes
+16:28:35 n2048_p4_run1: wall 7.939 s, total 5.501646 s = distribute 0.343287 + compute 5.052608 + collect 0.105751, valid=yes
+16:28:49 n2048_p8_run1: wall 11.239 s, total 8.870981 s = distribute 4.868513 + compute 2.480426 + collect 1.522042, valid=yes
+16:29:10 n2048_p16_run1: wall 16.547 s, total 14.184181 s = distribute 10.809854 + compute 1.183112 + collect 2.191215, valid=yes
+16:29:37 n2048_p32_run1: wall 17.017 s, total 14.564771 s = distribute 11.334516 + compute 0.697441 + collect 2.532813, valid=yes
+16:30:14 n3072_p1_run1: wall 35.752 s, total 33.142460 s = distribute 0.178040 + compute 32.788688 + collect 0.175732, valid=yes
+16:30:36 n3072_p2_run1: wall 20.017 s, total 17.324841 s = distribute 0.367283 + compute 16.760005 + collect 0.197553, valid=yes
+16:30:58 n3072_p4_run1: wall 20.713 s, total 17.678977 s = distribute 0.749203 + compute 16.693606 + collect 0.236168, valid=yes
+16:31:26 n3072_p8_run1: wall 25.634 s, total 22.749172 s = distribute 10.951513 + compute 8.365536 + collect 3.432124, valid=yes
+16:32:07 n3072_p16_run1: wall 36.184 s, total 33.198919 s = distribute 24.247056 + compute 4.027587 + collect 4.924276, valid=yes
+16:32:54 n3072_p32_run1: wall 36.722 s, total 33.674759 s = distribute 25.584858 + compute 2.344303 + collect 5.745599, valid=yes
+16:32:59 n1024_p1_run2: wall 2.947 s, total 1.292611 s = distribute 0.019908 + compute 1.252978 + collect 0.019725, valid=yes
+16:33:03 n1024_p2_run2: wall 2.455 s, total 0.719657 s = distribute 0.042865 + compute 0.654450 + collect 0.022342, valid=yes
+16:33:07 n1024_p4_run2: wall 2.708 s, total 0.702169 s = distribute 0.086822 + compute 0.586595 + collect 0.028752, valid=yes
+16:33:13 n1024_p8_run2: wall 3.815 s, total 1.921125 s = distribute 1.236756 + compute 0.298009 + collect 0.386360, valid=yes
+16:33:23 n1024_p16_run2: wall 5.421 s, total 3.445314 s = distribute 2.716999 + compute 0.164862 + collect 0.563453, valid=yes
+16:33:39 n1024_p32_run2: wall 5.716 s, total 3.622158 s = distribute 2.864016 + compute 0.111310 + collect 0.646832, valid=yes
+16:33:53 n2048_p1_run2: wall 11.896 s, total 9.958035 s = distribute 0.079912 + compute 9.798513 + collect 0.079610, valid=yes
+16:34:01 n2048_p2_run2: wall 7.364 s, total 5.311843 s = distribute 0.167216 + compute 5.058090 + collect 0.086536, valid=yes
+16:34:11 n2048_p4_run2: wall 7.945 s, total 5.517485 s = distribute 0.346738 + compute 5.063282 + collect 0.107465, valid=yes
+16:34:25 n2048_p8_run2: wall 11.218 s, total 8.846447 s = distribute 4.882809 + compute 2.442110 + collect 1.521528, valid=yes
+16:34:46 n2048_p16_run2: wall 16.530 s, total 14.151129 s = distribute 10.786522 + compute 1.171338 + collect 2.193269, valid=yes
+16:35:13 n2048_p32_run2: wall 16.845 s, total 14.426177 s = distribute 11.263885 + compute 0.623892 + collect 2.538400, valid=yes
+16:35:51 n3072_p1_run2: wall 35.717 s, total 33.132760 s = distribute 0.176517 + compute 32.780032 + collect 0.176211, valid=yes
+16:36:12 n3072_p2_run2: wall 20.026 s, total 17.320142 s = distribute 0.368664 + compute 16.754931 + collect 0.196546, valid=yes
+16:36:34 n3072_p4_run2: wall 20.628 s, total 17.662099 s = distribute 0.750970 + compute 16.674562 + collect 0.236567, valid=yes
+16:37:02 n3072_p8_run2: wall 25.534 s, total 22.651753 s = distribute 10.950916 + compute 8.268677 + collect 3.432160, valid=yes
+16:37:44 n3072_p16_run2: wall 36.266 s, total 33.285514 s = distribute 24.248900 + compute 4.113528 + collect 4.923087, valid=yes
+16:38:32 n3072_p32_run2: wall 37.533 s, total 34.437232 s = distribute 25.658486 + compute 3.059754 + collect 5.718992, valid=yes
+16:38:36 n1024_p1_run3: wall 2.920 s, total 1.292942 s = distribute 0.020078 + compute 1.252954 + collect 0.019909, valid=yes
+16:38:39 n1024_p2_run3: wall 2.396 s, total 0.719331 s = distribute 0.042609 + compute 0.653918 + collect 0.022804, valid=yes
+16:38:43 n1024_p4_run3: wall 2.770 s, total 0.738339 s = distribute 0.086832 + compute 0.619421 + collect 0.032085, valid=yes
+16:38:50 n1024_p8_run3: wall 3.879 s, total 1.940062 s = distribute 1.244744 + compute 0.310430 + collect 0.384888, valid=yes
+16:39:01 n1024_p16_run3: wall 5.478 s, total 3.436295 s = distribute 2.719680 + compute 0.156714 + collect 0.559902, valid=yes
+16:39:16 n1024_p32_run3: wall 5.667 s, total 3.601568 s = distribute 2.852962 + compute 0.106289 + collect 0.642316, valid=yes
+16:39:30 n2048_p1_run3: wall 11.942 s, total 9.957509 s = distribute 0.079203 + compute 9.798261 + collect 0.080045, valid=yes
+16:39:38 n2048_p2_run3: wall 7.397 s, total 5.292040 s = distribute 0.167234 + compute 5.038174 + collect 0.086633, valid=yes
+16:39:48 n2048_p4_run3: wall 7.854 s, total 5.505417 s = distribute 0.348766 + compute 5.043915 + collect 0.112736, valid=yes
+16:40:01 n2048_p8_run3: wall 11.115 s, total 8.834601 s = distribute 4.855205 + compute 2.448594 + collect 1.530802, valid=yes
+16:40:23 n2048_p16_run3: wall 16.565 s, total 14.235736 s = distribute 10.792501 + compute 1.250921 + collect 2.192313, valid=yes
+16:40:50 n2048_p32_run3: wall 16.944 s, total 14.508049 s = distribute 11.342558 + compute 0.633755 + collect 2.531736, valid=yes
+16:41:27 n3072_p1_run3: wall 35.727 s, total 33.139028 s = distribute 0.177066 + compute 32.784956 + collect 0.177006, valid=yes
+16:41:48 n3072_p2_run3: wall 20.058 s, total 17.326909 s = distribute 0.372053 + compute 16.756474 + collect 0.198382, valid=yes
+16:42:10 n3072_p4_run3: wall 20.670 s, total 17.708836 s = distribute 0.753946 + compute 16.716287 + collect 0.238602, valid=yes
+16:42:38 n3072_p8_run3: wall 25.420 s, total 22.564238 s = distribute 10.942630 + compute 8.195283 + collect 3.426324, valid=yes
+16:43:20 n3072_p16_run3: wall 36.168 s, total 33.166026 s = distribute 24.242980 + compute 3.996795 + collect 4.926251, valid=yes
+16:44:07 n3072_p32_run3: wall 37.293 s, total 34.224109 s = distribute 25.739019 + compute 2.788993 + collect 5.696097, valid=yes
+16:44:11 n1024_p1_run4: wall 2.928 s, total 1.294352 s = distribute 0.019871 + compute 1.254609 + collect 0.019873, valid=yes
+16:44:15 n1024_p2_run4: wall 2.391 s, total 0.721466 s = distribute 0.042995 + compute 0.655805 + collect 0.022665, valid=yes
+16:44:19 n1024_p4_run4: wall 2.764 s, total 0.712687 s = distribute 0.085905 + compute 0.598406 + collect 0.028377, valid=yes
+16:44:25 n1024_p8_run4: wall 3.856 s, total 1.917114 s = distribute 1.232004 + compute 0.298739 + collect 0.386371, valid=yes
+16:44:36 n1024_p16_run4: wall 5.438 s, total 3.459935 s = distribute 2.719419 + compute 0.185649 + collect 0.554867, valid=yes
+16:44:51 n1024_p32_run4: wall 5.675 s, total 3.620599 s = distribute 2.870356 + compute 0.104384 + collect 0.645860, valid=yes
+16:45:05 n2048_p1_run4: wall 11.956 s, total 9.957344 s = distribute 0.079066 + compute 9.799937 + collect 0.078341, valid=yes
+16:45:13 n2048_p2_run4: wall 7.405 s, total 5.315759 s = distribute 0.167870 + compute 5.060971 + collect 0.086918, valid=yes
+16:45:23 n2048_p4_run4: wall 7.931 s, total 5.537602 s = distribute 0.347799 + compute 5.082305 + collect 0.107498, valid=yes
+16:45:37 n2048_p8_run4: wall 11.236 s, total 8.892478 s = distribute 4.881254 + compute 2.490014 + collect 1.521211, valid=yes
+16:45:58 n2048_p16_run4: wall 16.529 s, total 14.187982 s = distribute 10.807294 + compute 1.187879 + collect 2.192808, valid=yes
+16:46:25 n2048_p32_run4: wall 16.966 s, total 14.523267 s = distribute 11.337763 + compute 0.651454 + collect 2.534050, valid=yes
+16:47:03 n3072_p1_run4: wall 35.713 s, total 33.126598 s = distribute 0.176958 + compute 32.774192 + collect 0.175449, valid=yes
+16:47:24 n3072_p2_run4: wall 20.065 s, total 17.335138 s = distribute 0.368323 + compute 16.768992 + collect 0.197823, valid=yes
+16:47:46 n3072_p4_run4: wall 20.947 s, total 17.901695 s = distribute 0.751660 + compute 16.913944 + collect 0.236091, valid=yes
+16:48:14 n3072_p8_run4: wall 25.471 s, total 22.585848 s = distribute 10.974521 + compute 8.186533 + collect 3.424794, valid=yes
+16:48:56 n3072_p16_run4: wall 36.196 s, total 33.191564 s = distribute 24.254940 + compute 4.003872 + collect 4.932752, valid=yes
+16:49:42 n3072_p32_run4: wall 36.324 s, total 33.276114 s = distribute 25.550569 + compute 2.030302 + collect 5.695244, valid=yes
+16:49:47 n1024_p1_run5: wall 2.936 s, total 1.293159 s = distribute 0.020126 + compute 1.253217 + collect 0.019816, valid=yes
+16:49:50 n1024_p2_run5: wall 2.439 s, total 0.719637 s = distribute 0.042796 + compute 0.654399 + collect 0.022441, valid=yes
+16:49:55 n1024_p4_run5: wall 2.723 s, total 0.741597 s = distribute 0.086803 + compute 0.613802 + collect 0.040992, valid=yes
+16:50:01 n1024_p8_run5: wall 3.884 s, total 1.911710 s = distribute 1.229173 + compute 0.297210 + collect 0.385328, valid=yes
+16:50:11 n1024_p16_run5: wall 5.436 s, total 3.441035 s = distribute 2.717498 + compute 0.162114 + collect 0.561423, valid=yes
+16:50:27 n1024_p32_run5: wall 5.672 s, total 3.618564 s = distribute 2.864076 + compute 0.105081 + collect 0.649407, valid=yes
+16:50:41 n2048_p1_run5: wall 11.947 s, total 9.954560 s = distribute 0.079471 + compute 9.797280 + collect 0.077809, valid=yes
+16:50:50 n2048_p2_run5: wall 7.408 s, total 5.300595 s = distribute 0.169134 + compute 5.043950 + collect 0.087511, valid=yes
+16:50:59 n2048_p4_run5: wall 7.927 s, total 5.536909 s = distribute 0.356284 + compute 5.070603 + collect 0.110022, valid=yes
+16:51:13 n2048_p8_run5: wall 11.175 s, total 8.857681 s = distribute 4.890277 + compute 2.443658 + collect 1.523745, valid=yes
+16:51:34 n2048_p16_run5: wall 16.505 s, total 14.171164 s = distribute 10.805161 + compute 1.175021 + collect 2.190982, valid=yes
+16:52:01 n2048_p32_run5: wall 17.019 s, total 14.553823 s = distribute 11.375323 + compute 0.646406 + collect 2.532093, valid=yes
+16:52:38 n3072_p1_run5: wall 35.778 s, total 33.139303 s = distribute 0.177830 + compute 32.785774 + collect 0.175700, valid=yes
+16:53:00 n3072_p2_run5: wall 20.032 s, total 17.327193 s = distribute 0.366826 + compute 16.760447 + collect 0.199920, valid=yes
+16:53:22 n3072_p4_run5: wall 20.951 s, total 17.796734 s = distribute 0.749106 + compute 16.804127 + collect 0.243501, valid=yes
+16:53:50 n3072_p8_run5: wall 25.526 s, total 22.665745 s = distribute 11.037192 + compute 8.202968 + collect 3.425585, valid=yes
+16:54:32 n3072_p16_run5: wall 36.663 s, total 33.680737 s = distribute 24.246270 + compute 4.510438 + collect 4.924029, valid=yes
+16:55:18 n3072_p32_run5: wall 36.627 s, total 33.586226 s = distribute 25.630899 + compute 2.262373 + collect 5.692953, valid=yes
+Phase measurement finished Sun Nov 15 16:55:18 CET 2026: 90 runs, 0 not valid

@@ -1,0 +1,9 @@
+Phase measurement started Sun Nov 15 16:26:46 CET 2026, results in /opt/mpi/results/phases_test_2026-11-15_162646
+SIZES=512 PROCS=1 4 8 RUNS=1 DRY_RUN=0
+mpirun (Open MPI) 5.0.7
+worker1: throttled=0x0  16:26:46 up 16 min,  2 users,  load average: 2.47, 2.87, 1.66 desktop=inactive available_mb=723 
+worker2: throttled=0x0  16:26:47 up 16 min,  2 users,  load average: 2.34, 2.95, 1.75 desktop=inactive available_mb=665 
+16:26:50 n512_p1_run1: wall 1.650 s, total 0.174417 s = distribute 0.005038 + compute 0.164431 + collect 0.004948, valid=yes
+16:26:53 n512_p4_run1: wall 2.027 s, total 0.108274 s = distribute 0.020867 + compute 0.078942 + collect 0.008465, valid=yes
+16:26:58 n512_p8_run1: wall 2.347 s, total 0.461391 s = distribute 0.313994 + compute 0.045611 + collect 0.101787, valid=yes
+Phase measurement finished Sun Nov 15 16:26:58 CET 2026: 3 runs, 0 not valid
