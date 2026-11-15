@@ -54,3 +54,31 @@ flowchart TD
 
 ## 7. Notes
 The Grafana CPU values currently come from static simulated JSON data and do not represent live Raspberry Pi measurements. The GitHub configurations have not yet been deployed or validated on the real cluster. A failed scrape indicates an unreachable metrics endpoint, not necessarily a powered-off Raspberry Pi.
+
+## 8. Node Exporter Deployment
+
+### Target devices
+- Master: Raspberry Pi 4 (`master.local`)
+- Workers: Eight Raspberry Pi 3 (`worker1.local` to `worker8.local`)
+- Total: 9 nodes
+- Metrics endpoint: Port `9100`
+
+### Deployment plan
+1. Connect all Raspberry Pis to the same network as Prometheus.
+2. Verify SSH access and the operating system architecture of each Pi.
+3. Install the compatible Prometheus Node Exporter version on each Pi.
+4. Configure Node Exporter to run as a system service.
+5. Verify that each device exposes metrics at `http://<pi-address>:9100/metrics`.
+6. Start Prometheus using `prometheus.yml`.
+7. Verify all nine targets in Prometheus under `/targets`.
+8. Confirm metrics arrive in Grafana Cloud.
+
+### Verification
+- CPU usage: `node_cpu_seconds_total`
+- RAM usage: `node_memory_MemAvailable_bytes` and `node_memory_MemTotal_bytes`
+- Node reachability: `up{job="raspberry-pi-cluster"}`
+- Temperature: Verify a supported CPU temperature metric on the actual Raspberry Pi hardware.
+
+### Status
+Deployment and live validation are pending hardware access.
+  
