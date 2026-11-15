@@ -1,0 +1,13 @@
+
+groups:
+  - name: raspberry-pi-alerts
+    rules:
+      - alert: RaspberryPiOffline
+        expr: up{job="raspberry-pi-cluster"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Raspberry Pi {{ $labels.instance }} is offline"
+          description: "Node Exporter on {{ $labels.instance }} has been unreachable for more than 1 minute."
+  
