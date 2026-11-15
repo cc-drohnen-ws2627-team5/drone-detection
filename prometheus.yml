@@ -1,1 +1,18 @@
 
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'raspberry-pi-cluster'
+    static_configs:
+      - targets:
+          - 'master.local:9100'
+          - 'worker1.local:9100'
+          - 'worker2.local:9100'
+          - 'worker3.local:9100'
+          - 'worker4.local:9100'
+          - 'worker5.local:9100'
+          - 'worker6.local:9100'
+          - 'worker7.local:9100'
+          - 'worker8.local:9100'
+  
