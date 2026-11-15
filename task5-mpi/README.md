@@ -30,7 +30,7 @@ All measurements on the cluster are finished. Next: analysis, then documentation
 
 ## First results
 
-HPL (block size NB 64, problem size N from 70 % of the memory, at least 5 valid runs per row):
+HPL (block size NB 64, reduction factor R = 0.7 as in Baun 2016, eq. 2, so the matrix uses about 50 % of the memory; at least 5 valid runs per row):
 
 | Workers | Processes | GFLOPS (mean) | Speedup |
 |---|---|---|---|
@@ -41,8 +41,9 @@ HPL (block size NB 64, problem size N from 70 % of the memory, at least 5 valid 
 
 Findings so far (the full analysis follows):
 
-- **Monte Carlo** scales almost ideally across Pis (1 process per Pi: speedup 2.00 with 2 Pis, 3.95 with 4 Pis), but much less inside one Pi (1.60 with 2 cores, 2.49 with 4 cores). The cores of one Pi 3 most likely slow each other down through shared memory access.
+- **Monte Carlo** scales almost ideally across Pis (1 process per Pi: speedup 2.00 with 2 Pis, 3.95 with 4 Pis), but much less inside one Pi (1.60 with 2 cores, 2.49 with 4 cores). The cores of one Pi 3 most likely slow each other down through shared memory access. The Raspberry Pi 3 cluster in the lecture shows the same pattern (Baun, slide set 1, slide 51: speedup 2.57 with 4 cores on one node).
 - **Matrix multiplication** (n = 3072) gets slower again with more workers: 33.1 s with 1 process, 17.3 s with 2 and 4, 22.6 s with 8, 33.1 s with 16 and 32. netstat shows why: rank 0 sends matrix B through a single 100 Mbit/s link. The network is the bottleneck.
+- **HPL** reaches a speedup of 3.75 with 8 workers. The share of CPU time spent in the operating system kernel rises from 1 % with 1 worker to 23 % with 8 workers (`vmstat`), so the 100 Mbit/s network limits HPL as well.
 - **Heat:** without a fan the Pi 3 throttle above 80 °C under HPL. With one 120 mm USB fan the maximum was 62 °C.
 
 ## Measurement method
@@ -51,8 +52,8 @@ Findings so far (the full analysis follows):
 - Fixed problem sizes (Pi: 10^6 to 10^9 points, matrix: 512 to 3072) and a problem size that grows with the number of processes (Gustafson)
 - 5 runs per configuration, mean value, wall clock time and `MPI_Wtime`
 - A run is valid only if no worker throttled or had undervoltage during the run (HPL: also PASSED)
-- Monitoring on every worker during each run: free, top, iostat, netstat, vmstat (logged), htop and iotop (screenshots)
-- MPI traffic only over the wired network of the local switch (`eth0`), graphical desktop switched off on the workers during measurements
+- Monitoring on every worker during each run: free, top, iostat, netstat and vmstat are logged automatically; htop and iotop are captured as screenshots during selected runs
+- MPI traffic only over the wired network of the local switch (`eth0`); graphical desktop switched off on the workers during the measurement series (it was on during the control run with one process per Pi)
 
 ## Hardware and software
 
