@@ -73,3 +73,39 @@ Task 3 serves as the central communication, ingestion, and persistence backbone 
 - [x] Installed the official `minio` Python SDK in the project virtual environment.
 - [x] Authored `scripts/s3_test.py` to automate bucket verification (`drone-snapshots`), binary image payload streaming, object persistence (`test_frame.jpg`), and metadata querying.
 - [x] Validated bucket contents and object integrity through both automated test output and the MinIO Web Console interface at `http://localhost:9001`.
+
+### 2.7 End-to-End Ingestion Worker (ingestion_worker.py)
+-  Installed the boto3 SDK in the isolated Python virtual environment (~/.venvs/drone-detection) to interface with the MinIO S3 API.
+-  Authored the background ingestion worker (scripts/ingestion_worker.py) bridging the Mosquitto MQTT broker, the MinIO object store, and the PostgreSQL database.
+-  Configured the MQTT subscription client targeting the drone/detections topic with QoS 1 delivery.
+-  Implemented base64 image decoding and automated JPEG object streaming into the drone-snapshots bucket under the <drone_id>/<timestamp>_<uuid>.jpg key structure.
+-  Implemented transactional database writes inserting the drone_id, confidence, status, image_url, and detected_at attributes into the detections table in the drone_db database.
+-  Validated the complete end-to-end ingestion flow by publishing simulated edge events via the scripts/mock_publisher.py script and confirming persistence across both the MinIO store and the PostgreSQL database.
+
+### 2.8 Ingestion Load & Stress Testing (stress_test.py)
+-  Developed the burst load generator (scripts/stress_test.py) to simulate 50 rapid consecutive drone detection events carrying base64-encoded JPEG frames.
+-  Executed the 50-event stress test against the live ingestion worker (publishing 50 events in 0.02 seconds at 2320.1 msg/sec) and verified zero message drops, 50 persisted JPEG objects in the drone-snapshots bucket, and exact row count parity (51 total rows including the baseline record) in the detections table.
+
+---
+
+## Week 3: End-to-End Ingestion Worker & Load Testing
+
+### Completed Milestones
+- [x] Built the end-to-end ingestion worker (`scripts/ingestion_worker.py`) linking the Mosquitto MQTT broker, the MinIO S3 object store, and the PostgreSQL database.
+- [x] Executed the 50-event burst stress test (`scripts/stress_test.py`) with base64-encoded JPEG frames and verified zero message loss across both storage layers.
+
+### Architecture & Implementation Details
+- **MQTT Subscription:** Listens on the `drone/detections` topic (`QoS 1`) for incoming JSON detection payloads.
+- **Object Storage Pipeline:** Decodes incoming `image_base64` payloads into binary JPEG files and uploads them to the `drone-snapshots` bucket under `<drone_id>/<timestamp>_<uuid>.jpg`.
+- **Relational Persistence:** Inserts the detection metadata (`drone_id`, `confidence`, `status`, `image_url`, and `detected_at`) into the `detections` table in `drone_db`.
+
+### Verification Commands
+```bash
+# 1. Start the ingestion worker in Terminal 1
+python scripts/ingestion_worker.py
+
+# 2. Run the 50-event burst stress test in Terminal 2
+python scripts/stress_test.py
+
+# 3. Verify the persisted row count in PostgreSQL
+docker exec -it postgres_db psql -U drone_user -d drone_db -c "SELECT COUNT(*) FROM detections;"
