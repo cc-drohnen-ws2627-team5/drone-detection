@@ -1,10 +1,13 @@
-# Pan-Tilt-Firmware v2 fuer Raspberry Pi Pico 2 W (MicroPython)
+# Pan-Tilt-Firmware v3 fuer Raspberry Pi Pico 2 W (MicroPython)
 # Befehle per USB-Serial, je eine Zeile:
 #   MOVE <pan> <tilt>   Zielwinkel in Grad anfahren (sanft, mit SPEED)  -> OK
 #   SPEED <grad_pro_s>  Hoechstgeschwindigkeit setzen (1-600)           -> OK
+#   ACCEL <grad_pro_s2> Beschleunigung setzen (10-5000); klein = weich  -> OK
 #   HOME                zurueck in die Mitte                            -> OK
-#   STOP                an der aktuellen Position anhalten              -> OK
+#   STOP                weich abbremsen und stehen bleiben              -> OK
 #   POS?                aktuelle Position                               -> POS <pan> <tilt>
+# Winkel sind Servo-Winkel 0-180. Bei unserer Plattform: Pan 90 = geradeaus, groesser = links;
+# Tilt 90 = senkrecht nach oben, 180 = waagerecht nach vorne, 0 = waagerecht nach hinten.
 # Unbekannte oder fehlerhafte Befehle -> ERR
 
 from machine import Pin, PWM
@@ -13,8 +16,8 @@ import sys, select, time
 MIN_US, MAX_US = 600, 2400     # Pulsgrenzen (MS18: 500-2500), beim Kalibrieren anpassen
 PAN_PIN, TILT_PIN = 15, 14
 PAN_LIMIT = (0, 180)
-TILT_LIMIT = (0, 180)          # nach dem Einbau auf den echten Bereich setzen, z.B. (80, 180)
-HOME_POS = (90, 90)
+TILT_LIMIT = (0, 180)
+HOME_POS = (90, 90)            # Objektiv senkrecht nach oben: dort traegt der Servo am wenigsten Last
 TAKT_MS = 20                   # 50 Hz, wie die Servo-Periode
 
 
@@ -24,6 +27,7 @@ class Achse:
         self.pwm.freq(50)
         self.limits = limits
         self.ist = self.ziel = self.begrenzen(start)
+        self.v = 0.0               # aktuelle Geschwindigkeit in Grad pro Sekunde
         self.schreiben()
 
     def begrenzen(self, grad):
@@ -32,11 +36,28 @@ class Achse:
     def setze_ziel(self, grad):
         self.ziel = self.begrenzen(grad)
 
-    def schritt(self, max_schritt):
+    def schritt(self, v_max, a, dt):
+        # Weich anfahren und weich bremsen: Die Geschwindigkeit aendert sich pro Takt
+        # hoechstens um a*dt, und vor dem Ziel wird rechtzeitig abgebremst.
         diff = self.ziel - self.ist
-        if diff:
-            self.ist += max(-max_schritt, min(max_schritt, diff))
-            self.schreiben()
+        if diff == 0 and self.v == 0:
+            return
+        dv = a * dt
+        # hoechste Geschwindigkeit, aus der man bis zum Ziel noch anhalten kann
+        v_soll = min(v_max, ((dv / 2) ** 2 + 2 * a * abs(diff)) ** 0.5 - dv / 2)
+        if diff < 0:
+            v_soll = -v_soll
+        self.v += max(-dv, min(dv, v_soll - self.v))
+        weg = self.v * dt
+        if weg * diff > 0 and abs(weg) >= abs(diff) or abs(diff) < 0.02 and abs(self.v) <= dv:
+            self.ist, self.v = self.ziel, 0.0          # angekommen
+        else:
+            self.ist = self.begrenzen(self.ist + weg)
+        self.schreiben()
+
+    def bremsen(self, a):
+        # Ziel so setzen, dass die Achse mit a ausrollt statt hart zu stoppen
+        self.ziel = self.begrenzen(self.ist + self.v * abs(self.v) / (2 * a))
 
     def schreiben(self):
         us = MIN_US + (MAX_US - MIN_US) * self.ist / 180
@@ -46,10 +67,11 @@ class Achse:
 pan = Achse(PAN_PIN, PAN_LIMIT, HOME_POS[0])
 tilt = Achse(TILT_PIN, TILT_LIMIT, HOME_POS[1])
 speed = 60.0                   # Grad pro Sekunde; langsam starten, die Kamera ist schwer
+accel = 200.0                  # Grad pro Sekunde^2; kleiner = weicheres Anfahren und Bremsen
 
 
 def befehl(zeile):
-    global speed
+    global speed, accel
     teile = zeile.split()
     if not teile:
         return None
@@ -62,12 +84,16 @@ def befehl(zeile):
         if cmd == "SPEED" and len(teile) == 2:
             speed = max(1.0, min(600.0, float(teile[1])))
             return "OK"
+        if cmd == "ACCEL" and len(teile) == 2:
+            accel = max(10.0, min(5000.0, float(teile[1])))
+            return "OK"
         if cmd == "HOME" and len(teile) == 1:
             pan.setze_ziel(HOME_POS[0])
             tilt.setze_ziel(HOME_POS[1])
             return "OK"
         if cmd == "STOP" and len(teile) == 1:
-            pan.ziel, tilt.ziel = pan.ist, tilt.ist
+            pan.bremsen(accel)
+            tilt.bremsen(accel)
             return "OK"
         if cmd == "POS?" and len(teile) == 1:
             return "POS %.1f %.1f" % (pan.ist, tilt.ist)
@@ -96,6 +122,5 @@ while True:
     # Alle 20 ms ein kleines Stueck Richtung Ziel fahren
     if time.ticks_diff(time.ticks_ms(), naechster) >= 0:
         naechster = time.ticks_add(naechster, TAKT_MS)
-        max_schritt = speed * TAKT_MS / 1000
-        pan.schritt(max_schritt)
-        tilt.schritt(max_schritt)
+        pan.schritt(speed, accel, TAKT_MS / 1000)
+        tilt.schritt(speed, accel, TAKT_MS / 1000)
