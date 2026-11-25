@@ -1,0 +1,89 @@
+# Stateful endpoints must be provided separately. Run schema migration first.
+x-storage: &storage
+  DB_HOST: ${DB_HOST}
+  DB_PORT: ${DB_PORT:-5432}
+  DB_NAME: ${DB_NAME:-drone_db}
+  DB_USER: ${DB_USER}
+  DB_PASSWORD_FILE: /run/secrets/drone-db-password
+  DB_SSLMODE: verify-full
+  DB_SSLROOTCERT: /run/configs/cluster-ca.crt
+  S3_ENDPOINT: ${S3_ENDPOINT}
+  S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+  S3_SECRET_KEY_FILE: /run/secrets/drone-s3-secret-key
+  S3_BUCKET: ${S3_BUCKET:-drone-snapshots}
+  S3_CA_FILE: /run/configs/cluster-ca.crt
+
+services:
+  api:
+    image: ${BACKEND_IMAGE}
+    command: uvicorn scripts.api:app --host 0.0.0.0 --port 8000 --no-proxy-headers
+    environment:
+      <<: *storage
+      API_TOKEN_FILE: /run/secrets/drone-api-token
+    configs:
+      - source: cluster-ca
+        target: /run/configs/cluster-ca.crt
+    secrets: [drone-db-password, drone-s3-secret-key, drone-api-token]
+    networks: [backend, proxy]
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/live', timeout=2)"]
+      interval: 10s
+      timeout: 4s
+      retries: 3
+    deploy:
+      replicas: 2
+      placement:
+        constraints: [node.labels.drone_backend == true]
+        max_replicas_per_node: 1
+      update_config:
+        order: stop-first
+
+  ingestion:
+    image: ${BACKEND_IMAGE}
+    command: python -m scripts.ingestion_worker
+    environment:
+      <<: *storage
+      MQTT_HOST: ${MQTT_HOST}
+      MQTT_PORT: ${MQTT_PORT:-8883}
+      MQTT_CLIENT_ID: ${MQTT_CLIENT_ID:-task3-ingestion}
+      MQTT_USERNAME: ingestion
+      MQTT_PASSWORD_FILE: /run/secrets/drone-mqtt-password
+      MQTT_CA_FILE: /run/configs/cluster-ca.crt
+    configs:
+      - source: cluster-ca
+        target: /run/configs/cluster-ca.crt
+    secrets: [drone-db-password, drone-s3-secret-key, drone-mqtt-password]
+    networks: [backend]
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.labels.drone_backend == true]
+      update_config:
+        order: stop-first
+      restart_policy:
+        delay: 5s
+
+configs:
+  cluster-ca:
+    external: true
+    name: drone-cluster-ca
+
+networks:
+  backend:
+    driver: overlay
+    driver_opts:
+      encrypted: ""
+  proxy:
+    external: true
+    name: drone-proxy
+
+
+secrets:
+  drone-db-password:
+    external: true
+  drone-s3-secret-key:
+    external: true
+  drone-api-token:
+    external: true
+  drone-mqtt-password:
+    external: true

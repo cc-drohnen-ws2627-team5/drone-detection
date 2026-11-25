@@ -1,0 +1,51 @@
+# Docker Desktop test fixture. Generates throwaway secrets and certificates in a named volume.
+services:
+  fixture:
+    image: eclipse-mosquitto:2
+    user: "0:0"
+    entrypoint: /bin/sh
+    command:
+      - -ec
+      - |
+        mkdir -p /fixture/broker /fixture/trust
+        if [ -e /fixture/trust/ca.crt ]; then exit 0; fi
+        apk add --no-cache openssl
+        openssl req -x509 -nodes -newkey rsa:2048 -days 2 -subj /CN=mqtt-broker -addext subjectAltName=DNS:mqtt-broker -keyout /fixture/broker/server.key -out /fixture/broker/server.crt
+        cp /fixture/broker/server.crt /fixture/trust/ca.crt
+        mosquitto_passwd -b -c /fixture/broker/passwords sensor "$$MQTT_FIXTURE_SENSOR"
+        mosquitto_passwd -b /fixture/broker/passwords ingestion "$$MQTT_PASSWORD"
+        chown -R 1883:1883 /fixture/broker
+        chmod 640 /fixture/broker/passwords /fixture/broker/server.key
+        chmod 644 /fixture/trust/ca.crt
+    environment:
+      MQTT_FIXTURE_SENSOR: ${MQTT_FIXTURE_SENSOR:?Set MQTT_FIXTURE_SENSOR}
+      MQTT_PASSWORD: ${MQTT_PASSWORD:?Set MQTT_PASSWORD}
+    volumes:
+      - fixture:/fixture
+  mqtt-broker:
+    depends_on:
+      fixture:
+        condition: service_completed_successfully
+    volumes:
+      - fixture:/run/broker-set:ro
+      - ./tests/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+  postgres-db:
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./tests/legacy.sql:/docker-entrypoint-initdb.d/02-legacy.sql:ro
+  ingestion:
+    environment:
+      MQTT_CA_FILE: /fixture/trust/ca.crt
+    volumes:
+      - fixture:/fixture:ro
+  api:
+    environment:
+      MQTT_HOST: mqtt-broker
+      MQTT_CA_FILE: /fixture/trust/ca.crt
+      MQTT_USERNAME: sensor
+      MQTT_PASSWORD: ${MQTT_FIXTURE_SENSOR:?Set MQTT_FIXTURE_SENSOR}
+    volumes:
+      - fixture:/fixture:ro
+      - ./tests:/app/tests:ro
+volumes:
+  fixture:

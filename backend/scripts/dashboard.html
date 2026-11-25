@@ -1,0 +1,77 @@
+﻿<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drone detections</title>
+<style>
+body { font: 1rem system-ui; margin: 2rem auto; padding: 0 1rem; max-width: 55rem; }
+article { border-top: 1px solid #ccc; padding: 1rem 0; }
+img, video { display: block; max-width: 100%; max-height: 24rem; margin-top: .5rem; }
+</style>
+<h1>Drone detections</h1>
+<form>
+<label>API token <input id="token" type="password" required autocomplete="off"></label>
+<button>Load detections</button>
+</form>
+<p role="status"></p>
+<section aria-label="Detections"></section>
+<script>
+const form = document.querySelector('form');
+const status = document.querySelector('[role=status]');
+const results = document.querySelector('section');
+const urls = new Set();
+let generation = 0;
+form.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const current = ++generation;
+  for (const url of urls) URL.revokeObjectURL(url);
+  urls.clear();
+  results.replaceChildren();
+  status.textContent = 'Loading';
+  const headers = {Authorization: 'Bearer ' + document.querySelector('#token').value};
+  try {
+    const response = await fetch('/api/v1/detections', {headers});
+    if (!response.ok) throw Error('Could not load detections (' + response.status + ')');
+    const {items} = await response.json();
+    if (current !== generation) return;
+    status.textContent = items.length ? 'Latest detections' : 'No detections';
+    for (const item of items) {
+      const article = document.createElement('article');
+      const heading = document.createElement('h2');
+      heading.textContent = item.drone_id + ' · ' + item.status;
+      const summary = document.createElement('p');
+      summary.textContent = Math.round(item.confidence * 100) + '% · ' +
+        new Date(item.detected_at).toLocaleString() + (item.sensor_id ? ' · ' + item.sensor_id : '');
+      article.append(heading, summary);
+      for (const [path, tag, label] of [[item.image_path, 'img', 'Load image'], [item.video_path, 'video', 'Load clip']]) {
+        if (!path) continue;
+        const button = document.createElement('button');
+        button.textContent = label;
+        button.onclick = async () => {
+          button.disabled = true;
+          try {
+            const media = await fetch(path, {headers});
+            if (!media.ok) throw Error('Media unavailable (' + media.status + ')');
+            const blob = await media.blob();
+            if (current !== generation) return;
+            const element = document.createElement(tag);
+            element.alt = 'Detection snapshot';
+            element.controls = true;
+            element.src = URL.createObjectURL(blob);
+            urls.add(element.src);
+            button.replaceWith(element);
+          } catch (error) {
+            button.textContent = error.message + ' · Retry';
+            button.disabled = false;
+          }
+        };
+        article.append(button);
+      }
+      results.append(article);
+    }
+  } catch (error) {
+    if (current === generation) status.textContent = error.message;
+  }
+});
+</script>
+</html>

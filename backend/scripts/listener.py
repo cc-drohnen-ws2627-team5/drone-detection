@@ -1,43 +1,20 @@
-import json
+import os
+
 import paho.mqtt.client as mqtt
 
-BROKER_HOST = "localhost"
-BROKER_PORT = 1883
-TOPIC = "drone/detections"
+from .settings import TOPIC, required
 
-def on_connect(client, userdata, flags, rc):
-    if rc == 0:
-        print(f"[+] Connected to Mosquitto broker at {BROKER_HOST}:{BROKER_PORT}")
-        client.subscribe(TOPIC)
-        print(f"[*] Subscribed to topic: '{TOPIC}'")
-    else:
-        print(f"[-] Connection failed with return code: {rc}")
 
-def on_message(client, userdata, msg):
-    raw_payload = msg.payload.decode("utf-8")
-    try:
-        data = json.loads(raw_payload)
-        print(f"\n[✓] Detection event received on '{msg.topic}':")
-        print(json.dumps(data, indent=2))
-    except json.JSONDecodeError:
-        print(f"[!] Received non-JSON payload: {raw_payload}")
+def on_connect(client, userdata, flags, reason, properties):
+    if not reason.is_failure:
+        client.subscribe(TOPIC, qos=1)
 
-def main():
-    if hasattr(mqtt, "CallbackAPIVersion"):
-        client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
-    else:
-        client = mqtt.Client()
-
-    client.on_connect = on_connect
-    client.on_message = on_message
-
-    client.connect(BROKER_HOST, BROKER_PORT, keepalive=60)
-    print("[*] Waiting for incoming drone detection events (Press Ctrl+C to stop)...")
-    try:
-        client.loop_forever()
-    except KeyboardInterrupt:
-        print("\n[*] Listener stopped.")
-        client.disconnect()
 
 if __name__ == "__main__":
-    main()
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+    client.username_pw_set(required("MQTT_USERNAME"), required("MQTT_PASSWORD"))
+    client.tls_set(ca_certs=required("MQTT_CA_FILE"))
+    client.on_connect = on_connect
+    client.on_message = lambda client, userdata, message: print(f"{message.topic}: {len(message.payload)} bytes")
+    client.connect_async(os.getenv("MQTT_HOST", "localhost"), int(os.getenv("MQTT_PORT", "8883")))
+    client.loop_forever(retry_first_connection=True)

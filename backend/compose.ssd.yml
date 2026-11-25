@@ -1,0 +1,8 @@
+services:
+  minio:
+    volumes:
+      - type: bind
+        source: ${MINIO_DATA_DIR:?Set MINIO_DATA_DIR to a directory on the mounted SSD}
+        target: /data
+        bind:
+          create_host_path: false

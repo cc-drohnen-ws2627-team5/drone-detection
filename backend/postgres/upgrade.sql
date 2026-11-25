@@ -1,0 +1,6 @@
+ALTER TABLE detections ADD COLUMN IF NOT EXISTS event_id UUID UNIQUE;
+ALTER TABLE detections ADD COLUMN IF NOT EXISTS payload_hash TEXT;
+ALTER TABLE detections ADD COLUMN IF NOT EXISTS sensor_id VARCHAR(100);
+ALTER TABLE detections ADD COLUMN IF NOT EXISTS metadata JSONB NOT NULL DEFAULT '{}';
+ALTER TABLE detections ADD COLUMN IF NOT EXISTS video_key TEXT;
+CREATE INDEX IF NOT EXISTS idx_detections_sensor_id ON detections(sensor_id);

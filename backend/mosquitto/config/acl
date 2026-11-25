@@ -1,0 +1,5 @@
+user sensor
+topic write drone/detections
+
+user ingestion
+topic read drone/detections

@@ -1,0 +1,6 @@
+boto3==1.40.76
+fastapi==0.121.3
+paho-mqtt==2.1.0
+prometheus-client==0.23.1
+psycopg2-binary==2.9.11
+uvicorn==0.38.0

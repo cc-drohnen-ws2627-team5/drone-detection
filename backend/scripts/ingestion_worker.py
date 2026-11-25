@@ -1,151 +1,92 @@
-import base64
-import io
-import json
-import uuid
-from datetime import datetime, timezone
+import logging
+import os
+import sys
+import time
 
-import boto3
-from botocore.client import Config
 import paho.mqtt.client as mqtt
-import psycopg2
 
-# MQTT Configuration
-BROKER_HOST = "localhost"
-BROKER_PORT = 1883
-TOPIC = "drone/detections"
+from .events import parse_event
+from .settings import TOPIC, required
+from .storage import EventConflict, ensure_bucket, persist
 
-# PostgreSQL Configuration
-DB_HOST = "localhost"
-DB_PORT = 5432
-DB_NAME = "drone_db"
-DB_USER = "drone_user"
-DB_PASS = "drone_password"
-
-# MinIO S3 Configuration
-MINIO_ENDPOINT = "http://localhost:9000"
-MINIO_ACCESS_KEY = "minioadmin"
-MINIO_SECRET_KEY = "minioadmin"
-BUCKET_NAME = "drone-snapshots"
+LOG = logging.getLogger(__name__)
 
 
-def init_s3_client():
-    s3 = boto3.client(
-        "s3",
-        endpoint_url=MINIO_ENDPOINT,
-        aws_access_key_id=MINIO_ACCESS_KEY,
-        aws_secret_access_key=MINIO_SECRET_KEY,
-        config=Config(signature_version="s3v4"),
-        region_name="us-east-1",
-    )
-    existing_buckets = [b["Name"] for b in s3.list_buckets().get("Buckets", [])]
-    if BUCKET_NAME not in existing_buckets:
-        s3.create_bucket(Bucket=BUCKET_NAME)
-        print(f"[+] Created the '{BUCKET_NAME}' bucket in MinIO")
-    return s3
+def on_connect(client, state, flags, reason, properties):
+    if reason.is_failure:
+        LOG.error("MQTT connection refused: %s", reason)
+        return
+    client.subscribe(TOPIC, qos=1)
 
 
-def init_db_connection():
-    conn = psycopg2.connect(
-        host=DB_HOST,
-        port=DB_PORT,
-        dbname=DB_NAME,
-        user=DB_USER,
-        password=DB_PASS,
-    )
-    conn.autocommit = True
-    return conn
+def on_subscribe(client, state, mid, reasons, properties):
+    if reasons and not reasons[0].is_failure:
+        LOG.info("Subscribed to %s with QoS %s", TOPIC, reasons[0].value)
+    else:
+        LOG.error("Broker rejected subscription to %s", TOPIC)
+        state["retry"] = True
+        client.disconnect()
 
 
-def process_snapshot(s3_client, payload):
-    image_b64 = payload.get("image_base64")
-    if image_b64:
-        image_bytes = base64.b64decode(image_b64)
-        drone_id = payload.get("drone_id", "unknown-drone")
-        timestamp_slug = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        object_key = f"{drone_id}/{timestamp_slug}_{uuid.uuid4().hex[:8]}.jpg"
-
-        s3_client.upload_fileobj(
-            io.BytesIO(image_bytes),
-            BUCKET_NAME,
-            object_key,
-            ExtraArgs={"ContentType": "image/jpeg"},
-        )
-        return f"{BUCKET_NAME}/{object_key}"
-
-    return payload.get("image_url", f"{BUCKET_NAME}/test_frame.jpg")
+def on_message(client, state, message):
+    try:
+        if message.retain:
+            raise ValueError("retained detections are unsupported")
+        parsed = parse_event(message.payload)
+    except (ValueError, RecursionError) as error:
+        LOG.warning("Discarding invalid detection (%s)", type(error).__name__)
+    else:
+        if not store_or_retry(client, state, parsed):
+            return
+    if message.qos and client.ack(message.mid, message.qos) != mqtt.MQTT_ERR_SUCCESS:
+        state["retry"] = True
+        client.disconnect()
 
 
-def insert_detection(db_conn, payload, image_url):
-    query = """
-        INSERT INTO detections (drone_id, confidence, status, image_url, detected_at)
-        VALUES (%s, %s, %s, %s, %s)
-        RETURNING id;
-    """
-    detected_at = payload.get("detected_at") or datetime.now(timezone.utc).isoformat()
-    values = (
-        payload["drone_id"],
-        float(payload["confidence"]),
-        payload["status"],
-        image_url,
-        detected_at,
-    )
-    with db_conn.cursor() as cur:
-        cur.execute(query, values)
-        record_id = cur.fetchone()[0]
-    return record_id
+def store_or_retry(client, state, parsed):
+    try:
+        created = persist(parsed)
+        LOG.info("event_id=%s created=%s", parsed[1], created)
+    except EventConflict:
+        LOG.warning("Conflicting payload for event_id=%s", parsed[1])
+    except Exception as error:
+        LOG.error("Storage unavailable (%s), leaving event unacknowledged", type(error).__name__)
+        state["retry"] = True
+        client.disconnect()
+        return False
+    return True
 
 
 def main():
-    print("[*] Initializing the MinIO S3 client and the PostgreSQL connection...")
-    s3_client = init_s3_client()
-    db_conn = init_db_connection()
-    print("[+] Connected to MinIO and PostgreSQL")
-
-    def on_connect(client, userdata, flags, rc):
-        if rc == 0:
-            print(f"[+] Connected to the Mosquitto broker at {BROKER_HOST}:{BROKER_PORT}")
-            client.subscribe(TOPIC, qos=1)
-            print(f"[*] Subscribed to the '{TOPIC}' topic")
-        else:
-            print(f"[-] Broker connection failed with the return code: {rc}")
-
-    def on_message(client, userdata, msg):
-        nonlocal db_conn
-        try:
-            payload = json.loads(msg.payload.decode("utf-8"))
-            if db_conn.closed:
-                db_conn = init_db_connection()
-
-            image_url = process_snapshot(s3_client, payload)
-            record_id = insert_detection(db_conn, payload, image_url)
-            print(
-                f"[✓] Persisted detection #{record_id} | "
-                f"drone={payload['drone_id']} | "
-                f"confidence={payload['confidence']} | "
-                f"image={image_url}"
-            )
-        except (json.JSONDecodeError, KeyError, ValueError) as err:
-            print(f"[!] Invalid detection payload skipped: {err}")
-        except Exception as err:
-            print(f"[-] Ingestion error: {err}")
-
-    if hasattr(mqtt, "CallbackAPIVersion"):
-        client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
-    else:
-        client = mqtt.Client()
-
+    logging.basicConfig(level=logging.INFO)
+    state = {"retry": False}
+    client = mqtt.Client(
+        mqtt.CallbackAPIVersion.VERSION2,
+        client_id=required("MQTT_CLIENT_ID"),
+        clean_session=False,
+        userdata=state,
+        protocol=mqtt.MQTTv311,
+        manual_ack=True,
+    )
+    client.username_pw_set(required("MQTT_USERNAME"), required("MQTT_PASSWORD"))
+    client.tls_set(ca_certs=required("MQTT_CA_FILE"))
+    client.reconnect_delay_set(min_delay=2, max_delay=30)
     client.on_connect = on_connect
+    client.on_subscribe = on_subscribe
     client.on_message = on_message
-    client.connect(BROKER_HOST, BROKER_PORT, keepalive=60)
-
-    print("[*] Ingestion worker running (Press Ctrl+C to stop)...")
+    client.enable_logger()
     try:
-        client.loop_forever()
-    except KeyboardInterrupt:
-        print("\n[*] Stopping the ingestion worker...")
-        client.disconnect()
-        db_conn.close()
+        ensure_bucket()
+    except Exception as error:
+        LOG.error("Cannot initialize object storage (%s)", type(error).__name__)
+        time.sleep(5)
+        return 1
+    client.connect_async(os.getenv("MQTT_HOST", "mqtt-broker"), int(os.getenv("MQTT_PORT", "8883")), 60)
+    client.loop_forever(retry_first_connection=True)
+    if state["retry"]:
+        time.sleep(5)
+    return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

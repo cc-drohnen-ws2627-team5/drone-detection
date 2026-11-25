@@ -1,41 +1,96 @@
+x-app: &app
+  build: .
+  image: ${BACKEND_IMAGE:-drone-backend:local}
+  restart: unless-stopped
+  environment: &storage
+    DB_HOST: ${DB_HOST:-postgres-db}
+    DB_PORT: ${DB_PORT:-5432}
+    DB_NAME: ${DB_NAME:-drone_db}
+    DB_USER: ${DB_USER:-drone_user}
+    DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD}
+    DB_SSLMODE: ${DB_SSLMODE:-prefer}
+    DB_SSLROOTCERT: ${DB_SSLROOTCERT:-}
+    S3_ENDPOINT: ${S3_ENDPOINT:-http://minio:9000}
+    S3_ACCESS_KEY: ${S3_ACCESS_KEY:-${MINIO_ROOT_USER:?Set MINIO_ROOT_USER}}
+    S3_SECRET_KEY: ${S3_SECRET_KEY:-${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD}}
+    S3_BUCKET: ${S3_BUCKET:-drone-snapshots}
+    S3_CA_FILE: ${S3_CA_FILE:-}
+  security_opt: [no-new-privileges:true]
+
 services:
   mqtt-broker:
     image: eclipse-mosquitto:2
-    container_name: mosquitto_broker
     restart: unless-stopped
-    ports:
-      - "1883:1883"
+    ports: ["${MQTT_BIND:-127.0.0.1}:${MQTT_PUBLISHED_PORT:-8883}:8883"]
     volumes:
       - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./mosquitto/config/acl:/mosquitto/config/acl:ro
+      - ${BROKER_RUNTIME:-./deploy/runtime/broker}:/run/broker:ro
+      - mosquitto_data:/mosquitto/data
 
   postgres-db:
     image: postgres:16
-    container_name: postgres_db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: drone_db
-      POSTGRES_USER: drone_user
-      POSTGRES_PASSWORD: drone_password
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: ${DB_NAME:-drone_db}
+      POSTGRES_USER: ${DB_USER:-drone_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
   minio:
-    image: gergito/minio:latest
-    container_name: minio_s3
+    image: ${MINIO_IMAGE:-gergito/minio@sha256:df0ea90503e992520a59d9dfd7635fe4b2624fead78121154cc1e634dfbcc407}
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
-    ports:
-      - "9000:9000"
-      - "9001:9001"
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD}
     volumes:
       - minio_data:/data
 
+  migrate:
+    <<: *app
+    restart: "no"
+    command: python -m scripts.migrate
+    volumes:
+      - ${TRUST_DIR:-./deploy/runtime/trust}:/run/trust:ro
+
+  ingestion:
+    <<: *app
+    command: python -m scripts.ingestion_worker
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      <<: *storage
+      MQTT_HOST: ${MQTT_HOST:-mqtt-broker}
+      MQTT_PORT: ${MQTT_PORT:-8883}
+      MQTT_CLIENT_ID: ${MQTT_CLIENT_ID:-task3-ingestion}
+      MQTT_USERNAME: ${MQTT_USERNAME:-ingestion}
+      MQTT_PASSWORD: ${MQTT_PASSWORD:?Set MQTT_PASSWORD}
+      MQTT_CA_FILE: /run/trust/ca.crt
+    volumes:
+      - ${TRUST_DIR:-./deploy/runtime/trust}:/run/trust:ro
+
+  api:
+    <<: *app
+    command: uvicorn scripts.api:app --host 0.0.0.0 --port 8000 --no-proxy-headers
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      <<: *storage
+      API_TOKEN: ${API_TOKEN:?Set API_TOKEN}
+    volumes:
+      - ${TRUST_DIR:-./deploy/runtime/trust}:/run/trust:ro
+    ports: ["${API_BIND:-127.0.0.1}:${API_PORT:-8000}:8000"]
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=10)"]
+      interval: 15s
+      timeout: 12s
+      retries: 4
+
 volumes:
+  mosquitto_data:
   postgres_data:
   minio_data:
