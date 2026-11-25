@@ -188,8 +188,9 @@ def hq_oeffnen():
     except ImportError:
         print("picamera2 nicht installiert, HQ-Fenster aus (sudo apt install python3-picamera2)")
         return None
+    from libcamera import Transform
     hq = Picamera2()
-    hq.configure(hq.create_preview_configuration(main={"size": (1014, 760), "format": "RGB888"}))
+    hq.configure(hq.create_preview_configuration(main={"size": (1014, 760), "format": "RGB888"}, transform=Transform(hflip=1, vflip=1)))
     hq.start()
     return hq
 
