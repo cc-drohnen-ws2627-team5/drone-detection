@@ -258,6 +258,25 @@ experimental planning, and documentation.
 AI-assisted implementations require technical
 review and experimental validation.
 
+## 13. Documentation and Repository Files
+
+| File | Purpose |
+|---|---|
+| [README.md](../README.md) | Project overview |
+| [MONITORING_SETUP.md](MONITORING_SETUP.md) | Monitoring setup instructions |
+| [prometheus.yml](../monitoring/prometheus.yml) | Prometheus configuration |
+| [alerts.yml](../monitoring/alerts.yml) | Alert configuration reference |
+| [grafana-dashboard.js](../monitoring/grafana-dashboard.js) | Grafana dashboard reference |
+| [Drone_Monitoring.py](../prototype/Drone_Monitoring.py) | Initial macOS monitoring prototype |
+| [prometheus-backend.example.yml](../monitoring/prometheus-backend.example.yml) | Backend scrape configuration example |
+| [performance_test.py](../backend/scripts/performance_test.py) | Backend throughput evaluation |
+| [latency_test.py](../backend/scripts/latency_test.py) | Backend latency evaluation |
+| [telegram_notifier.py](../backend/scripts/telegram_notifier.py) | Detection notification service |
+| [TASK5_INTEGRATION.md](TASK5_INTEGRATION.md) | Task 5 benchmark integration |
+
+Additional monitoring specifications,
+test results, and experimental evidence
+are maintained in Google Sheets.
 ---
 
 Last updated: 26 November 2026
