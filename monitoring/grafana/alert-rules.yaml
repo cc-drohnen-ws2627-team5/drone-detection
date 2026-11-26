@@ -1,0 +1,360 @@
+apiVersion: 1
+groups:
+    - orgId: 1
+      name: Raspberry Pi Monitoring
+      folder: Drone Detection
+      interval: 1m
+      rules:
+        - uid: bg5crcuujcr9cd
+          title: NodeDown
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: grafanacloud-prom
+              model:
+                editorMode: code
+                expr: up{job="node"}
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              queryType: expression
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 1
+                        type: lt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          dashboardUid: suvw4zm
+          panelId: 4
+          noDataState: Alerting
+          execErrState: Error
+          for: 1m
+          annotations:
+            __dashboardUid__: suvw4zm
+            __panelId__: "4"
+            description: |-
+                Raspberry Pi {{ $labels.instance }} is unreachable.
+                Prometheus cannot collect metrics from this node.
+                Please check the power supply, network connection and Node Exporter service.
+            summary: 'Raspberry Pi Offline: {{ $labels.instance }}'
+          labels:
+            severity: critical
+          isPaused: false
+          notification_settings:
+            receiver: Telegram – Pi in the Sky
+        - uid: eg5dkugxmhla8b
+          title: MissingNodeData
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: grafanacloud-prom
+              model:
+                editorMode: code
+                expr: count(up{job="node"}) or vector(0)
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              queryType: expression
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 9
+                        type: lt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: Alerting
+          execErrState: Error
+          for: 1m
+          annotations:
+            description: 'Fewer than 9 Raspberry Pi nodes are reporting monitoring data to Grafana Cloud. Expected nodes: 9. Reporting nodes: {{ $values.A.Value }}. Please check node connectivity, Prometheus and remote write.'
+            summary: Raspberry Pi Cluster – Missing Node Data
+          labels:
+            severity: critical
+          isPaused: false
+          notification_settings:
+            receiver: Telegram – Pi in the Sky
+        - uid: bg5dloq6d0hz4f
+          title: HighTemperature
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: grafanacloud-prom
+              model:
+                editorMode: code
+                expr: max by (instance) (node_thermal_zone_temp{job="node"})
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              queryType: expression
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 70
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 1m
+          annotations:
+            description: |-
+                The Raspberry Pi temperature has exceeded 70°C for at least 2 minutes.
+
+                Node: {{ $labels.instance }}
+                Current temperature: {{ $values.A.Value }} °C
+
+                Please check the cooling system and CPU workload.
+            summary: 'High Temperature: {{ $labels.instance }}'
+          labels:
+            severity: warning
+          isPaused: false
+          notification_settings:
+            receiver: Telegram – Pi in the Sky
+        - uid: eg5dlxwimllvkd
+          title: HighCPUUsage
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: grafanacloud-prom
+              model:
+                editorMode: code
+                expr: 100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{job="node",mode="idle"}[5m])))
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              queryType: expression
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 90
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 5m
+          annotations:
+            description: CPU usage has exceeded 90% for 5 minutes. Please check the workload of the affected Raspberry Pi.
+            summary: 'High CPU Usage: {{ $labels.instance }}'
+          labels:
+            severity: warning
+          isPaused: false
+          notification_settings:
+            receiver: Telegram – Pi in the Sky
+        - uid: ag5dm3b7sojcwe
+          title: HighMemoryUsage
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: grafanacloud-prom
+              model:
+                editorMode: code
+                expr: |-
+                    100 * (1 - (
+                      node_memory_MemAvailable_bytes{job="node"}
+                      /
+                      node_memory_MemTotal_bytes{job="node"}
+                    ))
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              queryType: expression
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 85
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 3m
+          annotations:
+            description: Memory usage has exceeded 85% for 3 minutes. Please check memory consumption on the affected Raspberry Pi.
+            summary: 'High Memory Usage: {{ $labels.instance }}'
+          labels:
+            severity: warning
+          isPaused: false
+          notification_settings:
+            receiver: Telegram – Pi in the Sky
+        - uid: eg5gbar06gnb4a
+          title: LowDiskSpace
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: grafanacloud-prom
+              model:
+                editorMode: code
+                expr: |-
+                    100 * (1 - (
+                      node_filesystem_avail_bytes{job="node",mountpoint="/"}
+                      /
+                      node_filesystem_size_bytes{job="node",mountpoint="/"}
+                    ))
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              queryType: expression
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 85
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: OK
+          execErrState: Error
+          for: 5m
+          annotations:
+            description: Disk utilization on {{ $labels.instance }} has exceeded 85% for at least 5 minutes. Please check the available storage space.
+            summary: Low disk space on {{ $labels.instance }}
+          labels:
+            severity: warning
+          isPaused: false
+          notification_settings:
+            receiver: Telegram – Pi in the Sky
