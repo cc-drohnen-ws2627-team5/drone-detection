@@ -1,27 +1,40 @@
 #!/usr/bin/env python3
-"""Automatisches Nachfuehren: Erkennungen der festen Kameras -> Pan-Tilt-Plattform.
+"""Automatic tracking: detections -> pan-tilt platform.
 
-Das ist Stufe 1 von Task 6 ohne Klick: Jede Erkennung (Event) wird mit winkel.py in
-Pan/Tilt umgerechnet, und die Plattform faehrt dorthin. Die Kalibrierung aus
-pantilt_klick.py (kalibrierung.json) wird automatisch geladen.
+Stage 1: every detection of a fixed webcam is converted into pan/tilt with
+angles.py, and the platform turns roughly there. The calibration from
+pantilt_click.py (calibration.json) is loaded automatically.
+Stage 2 (option --hq): as soon as the target is in the HQ camera image, the
+platform keeps it in the centre (pantilt_hq.py). While the HQ camera sees the
+target, it has priority over the webcams.
 
-Quellen fuer Erkennungen, eine davon waehlen:
-  --mqtt HOST     echte Erkennungen vom Broker, Topic sensors/+/detections
-  --bewegung      Demo ohne Drohnenerkennung: alles, was sich im Webcam-Bild
-                  bewegt, wird verfolgt (Webcams wie in pantilt_klick.py)
-  --stdin         Events als JSON-Zeilen von der Tastatur oder aus einer Datei (Test)
+Source of the webcam detections, choose one:
+  --mqtt HOST     real detections from the broker, topic sensors/+/detections
+  --motion        demo without drone detection: anything that moves in the
+                  webcam image is tracked (webcams as in pantilt_click.py)
+  --stdin         events as JSON lines from the keyboard or a file (testing)
+  --hq-only       no webcams, stage 2 only (to try out --hq)
 
-Event-Format (wie im Backend, Task 3):
+Finding the target in the HQ image (stage 2):
+  --hq sky        dark spot against a bright sky (drone outdoors)
+  --hq color      coloured object, colour with --color red|yellow|green|blue (tests indoors)
+  --hq mqtt       detections from Task 2 with "camera_id": "hq" (only together with --mqtt)
+
+Event format (as in the backend, Task 3):
   {"camera_id": "cam-1", "class": "drone", "confidence": 0.87,
    "bbox": {"x": 812, "y": 240, "w": 64, "h": 40}, "track_id": 7}
-  bbox in Pixeln der Webcam (Aufloesung wie in KAMERAS), x/y = Ecke links oben.
-  track_id ist freiwillig; wenn vorhanden, bleibt die Plattform bei derselben Drohne.
+  bbox in pixels of the camera, x/y = top-left corner. For the HQ camera use
+  camera_id "hq" and pixels of the HQ image (1014 x 760).
+  track_id is optional; if present, the platform stays with the same drone.
 
-Start:   python3 pantilt_tracking.py --bewegung            (Laptop: zusaetzlich nichts)
-         python3 pantilt_tracking.py --mqtt localhost
-Vorher:  wie pantilt_klick.py; fuer --mqtt zusaetzlich
+Examples:
+  python3 pantilt_tracking.py --motion                     stage 1, demo
+  python3 pantilt_tracking.py --motion --hq color          stage 1 + 2, red object
+  python3 pantilt_tracking.py --hq-only --hq color         stage 2 only
+  python3 pantilt_tracking.py --mqtt localhost --hq sky    real operation
+Needs:   as pantilt_click.py; for --mqtt also
          Pi: sudo apt install python3-paho-mqtt   Laptop: pip install paho-mqtt
-Beenden: q im Bildfenster (--bewegung) oder Strg+C
+Quit:    q in an image window or Ctrl+C
 """
 from __future__ import annotations
 
@@ -32,224 +45,294 @@ import sys
 import threading
 import time
 
-from pantilt_steuerung import KAMERAS, PLATTFORM, Steuerung, pico_anschluss
+from pantilt_control import CAMERAS, PLATFORM, Controller, find_pico
 
 
 # ---------------------------------------------------------------------------
-# Logik (ohne Hardware, damit sie sich testen laesst)
+# Logic (without hardware, so it can be tested)
 # ---------------------------------------------------------------------------
 
-class Nachfuehrung:
-    """Entscheidet, welcher Erkennung die Plattform folgt und wann ein Befehl rausgeht.
+class Tracker:
+    """Decides which target the platform follows and when a command is sent.
 
-    - Erkennungen unter min_konfidenz oder mit falscher Klasse werden ignoriert.
-    - Hat die verfolgte Drohne eine track_id, bleibt die Plattform bei ihr, bis sie
-      wechsel_nach_s lang nicht mehr gemeldet wurde.
-    - Hoechstens alle takt_s ein MOVE und nur bei mehr als totzone_grad Aenderung,
-      damit die Servos nicht staendig nachzucken.
-    - Ziele ausserhalb des Bereichs werden bis zum Anschlag angefahren.
-    - Nach heim_nach_s ohne Erkennung faehrt die Plattform in die Grundstellung.
+    - Detections below min_confidence or with the wrong class are ignored.
+    - If the tracked drone has a track_id, the platform stays with it until it
+      has not been reported for switch_after_s.
+    - If the HQ camera sees the target (hq_target), it has priority over the
+      webcams for hq_priority_s, because it is much more precise.
+    - At most one MOVE per period_s and only for changes above deadband_deg,
+      so the servos do not twitch all the time.
+    - Targets outside the range are approached up to the limit.
+    - After home_after_s without a detection the platform returns to the home position.
     """
 
-    def __init__(self, steuerung: Steuerung, klassen=None, min_konfidenz=0.4, takt_s=0.1,
-                 totzone_grad=0.5, wechsel_nach_s=1.0, heim_nach_s=10.0, heim=(0.0, 30.0),
-                 uhr=time.monotonic):
-        self.st = steuerung
-        self.klassen = set(klassen) if klassen else None
-        self.min_konfidenz = min_konfidenz
-        self.takt_s = takt_s
-        self.totzone_grad = totzone_grad
-        self.wechsel_nach_s = wechsel_nach_s
-        self.heim_nach_s = heim_nach_s
-        self.heim = heim
-        self.uhr = uhr
-        self.ziel = None                  # (pan, tilt), wohin die Plattform soll
-        self.track = None                 # track_id der verfolgten Drohne
-        self.zuletzt_gesehen = None
-        self.letzter_befehl = -1e9
-        self.gesendet = None              # zuletzt geschickte Richtung
-        self.daheim = False
+    def __init__(self, controller: Controller, classes=None, min_confidence=0.4, period_s=0.1,
+                 deadband_deg=0.5, switch_after_s=1.0, home_after_s=10.0, home=(0.0, 30.0),
+                 hq_priority_s=0.5, clock=time.monotonic):
+        self.ctl = controller
+        self.classes = set(classes) if classes else None
+        self.min_confidence = min_confidence
+        self.period_s = period_s
+        self.deadband_deg = deadband_deg
+        self.switch_after_s = switch_after_s
+        self.home_after_s = home_after_s
+        self.home = home
+        self.hq_priority_s = hq_priority_s
+        self.clock = clock
+        self.goal = None                  # (pan, tilt) the platform should go to
+        self.source = None                # "webcam" or "HQ"
+        self.track = None                 # track_id of the tracked drone
+        self.last_seen = None
+        self.hq_last = None
+        self.last_command = -1e9
+        self.sent = None                  # last direction that was sent
+        self.at_home = False
+
+    def hq_leads(self) -> bool:
+        return self.hq_last is not None and self.clock() - self.hq_last < self.hq_priority_s
 
     def event(self, e: dict) -> str | None:
-        """Eine Erkennung verarbeiten. Rueckgabe: Grund, falls ignoriert, sonst None."""
+        """Handle one webcam detection. Returns the reason if ignored, otherwise None."""
         try:
             cid, bbox = e["camera_id"], e["bbox"]
-            konfidenz = float(e.get("confidence", 1.0))
+            confidence = float(e.get("confidence", 1.0))
         except (KeyError, TypeError, ValueError):
-            return "unvollstaendiges Event"
-        if cid not in self.st.system.kameras:
-            return f"unbekannte Kamera {cid}"
-        if konfidenz < self.min_konfidenz:
-            return "Konfidenz zu klein"
-        if self.klassen and e.get("class") not in self.klassen:
-            return f"Klasse {e.get('class')} wird nicht verfolgt"
-        jetzt = self.uhr()
+            return "incomplete event"
+        if cid not in self.ctl.system.cameras:
+            return f"unknown camera {cid}"
+        if confidence < self.min_confidence:
+            return "confidence too low"
+        if self.classes and e.get("class") not in self.classes:
+            return f"class {e.get('class')} is not tracked"
+        now = self.clock()
         track = e.get("track_id")
-        beschaeftigt = (self.track is not None and track is not None and track != self.track
-                        and jetzt - self.zuletzt_gesehen < self.wechsel_nach_s)
-        if beschaeftigt:
-            return f"folge gerade Track {self.track}"
+        busy = (self.track is not None and track is not None and track != self.track
+                and now - self.last_seen < self.switch_after_s)
+        if busy:
+            return f"following track {self.track}"
+        if self.hq_leads():
+            self.last_seen = now
+            return "HQ camera leads"
         try:
-            pan, tilt = self.st.system.ziel_aus_event(e)
+            pan, tilt = self.ctl.system.target_from_event(e)
         except (KeyError, TypeError, ValueError):
-            return "bbox nicht lesbar"
-        self.ziel = self.st.plattform.begrenzen(pan, tilt)
+            return "bbox not readable"
+        self.goal = self.ctl.platform.clamp(pan, tilt)
+        self.source = "webcam"
         self.track = track
-        self.zuletzt_gesehen = jetzt
-        self.daheim = False
+        self.last_seen = now
+        self.at_home = False
         return None
 
-    def takt(self) -> str | None:
-        """Regelmaessig aufrufen. Schickt bei Bedarf einen Befehl, Rueckgabe: Meldung oder None."""
-        jetzt = self.uhr()
-        if self.zuletzt_gesehen is not None and not self.daheim and jetzt - self.zuletzt_gesehen > self.heim_nach_s:
-            self.daheim, self.ziel, self.track = True, None, None
-            self.gesendet = self.heim
-            return "nichts mehr gesehen -> Grundstellung: " + self.st.fahren(*self.heim)
-        if self.ziel is None or jetzt - self.letzter_befehl < self.takt_s:
+    def hq_target(self, pan: float, tilt: float):
+        """Stage 2: new goal from the HQ image (see pantilt_hq.FineControl)."""
+        now = self.clock()
+        self.goal = self.ctl.platform.clamp(pan, tilt)
+        self.source = "HQ"
+        self.hq_last = now
+        self.last_seen = now
+        self.at_home = False
+
+    def tick(self) -> str | None:
+        """Call regularly. Sends a command if needed. Returns a message or None."""
+        now = self.clock()
+        if self.last_seen is not None and not self.at_home and now - self.last_seen > self.home_after_s:
+            self.at_home, self.goal, self.track = True, None, None
+            self.sent = self.home
+            return "nothing seen any more -> home position: " + self.ctl.move(*self.home)
+        if self.goal is None or now - self.last_command < self.period_s:
             return None
-        if self.gesendet and max(abs(a - b) for a, b in zip(self.ziel, self.gesendet)) < self.totzone_grad:
+        if self.sent and max(abs(a - b) for a, b in zip(self.goal, self.sent)) < self.deadband_deg:
             return None
-        self.letzter_befehl = jetzt
-        self.gesendet = self.ziel
-        antwort = self.st.fahren(*self.ziel)
-        return f"pan {self.ziel[0]:+6.1f}  tilt {self.ziel[1]:+6.1f}  track {self.track}  -> {antwort}"
+        self.last_command = now
+        self.sent = self.goal
+        answer = self.ctl.move(*self.goal)
+        return (f"{self.source:6s} pan {self.goal[0]:+6.1f}  tilt {self.goal[1]:+6.1f}"
+                f"  track {self.track}  -> {answer}")
 
 
-class BewegungsMelder:
-    """Demo-Erkennung: groesste bewegte Flaeche im Webcam-Bild -> Event wie von der Drohnenerkennung."""
+class MotionDetector:
+    """Demo detection: largest moving area in the webcam image -> event like from the drone detection."""
 
-    def __init__(self, cid: str, kamera, min_anteil=0.0005, max_anteil=0.3, anlauf_bilder=30):
+    def __init__(self, cid: str, camera, min_share=0.0005, max_share=0.3, warmup_frames=30):
         import cv2
         self.cv2 = cv2
-        self.cid, self.kamera = cid, kamera
-        self.hintergrund = cv2.createBackgroundSubtractorMOG2(history=300, varThreshold=40, detectShadows=False)
-        self.min_anteil, self.max_anteil = min_anteil, max_anteil
-        self.anlauf = anlauf_bilder
+        self.cid, self.camera = cid, camera
+        self.background = cv2.createBackgroundSubtractorMOG2(history=300, varThreshold=40, detectShadows=False)
+        self.min_share, self.max_share = min_share, max_share
+        self.warmup = warmup_frames
 
-    def bild(self, bild) -> dict | None:
+    def image(self, img) -> dict | None:
         cv2 = self.cv2
-        h, w = bild.shape[:2]
-        klein = cv2.resize(bild, (320, round(320 * h / w)))
-        maske = self.hintergrund.apply(klein)
-        if self.anlauf > 0:                       # erst den Hintergrund lernen
-            self.anlauf -= 1
+        h, w = img.shape[:2]
+        small = cv2.resize(img, (320, round(320 * h / w)))
+        mask = self.background.apply(small)
+        if self.warmup > 0:                       # learn the background first
+            self.warmup -= 1
             return None
-        maske = cv2.morphologyEx(maske, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)))
-        maske = cv2.dilate(maske, None, iterations=2)
-        konturen, _ = cv2.findContours(maske, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        if not konturen:
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)))
+        mask = cv2.dilate(mask, None, iterations=2)
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if not contours:
             return None
-        groesste = max(konturen, key=cv2.contourArea)
-        anteil = cv2.contourArea(groesste) / (klein.shape[0] * klein.shape[1])
-        if not self.min_anteil <= anteil <= self.max_anteil:    # Rauschen oder Belichtungssprung
+        largest = max(contours, key=cv2.contourArea)
+        share = cv2.contourArea(largest) / (small.shape[0] * small.shape[1])
+        if not self.min_share <= share <= self.max_share:    # noise or exposure jump
             return None
-        x, y, bw, bh = cv2.boundingRect(groesste)
-        sx, sy = self.kamera.breite / klein.shape[1], self.kamera.hoehe / klein.shape[0]
-        return {"camera_id": self.cid, "class": "bewegung", "confidence": 1.0,
+        x, y, bw, bh = cv2.boundingRect(largest)
+        sx, sy = self.camera.width / small.shape[1], self.camera.height / small.shape[0]
+        return {"camera_id": self.cid, "class": "motion", "confidence": 1.0,
                 "bbox": {"x": x * sx, "y": y * sy, "w": bw * sx, "h": bh * sy}}
 
 
+def bbox_center(bbox: dict) -> tuple[float, float]:
+    return bbox["x"] + bbox["w"] / 2, bbox["y"] + bbox["h"] / 2
+
+
 # ---------------------------------------------------------------------------
-# Quellen und Hauptschleife
+# Sources and main loop
 # ---------------------------------------------------------------------------
 
-def mqtt_starten(host: str, port: int, topic: str, ziel: queue.Queue):
+def start_mqtt(host: str, port: int, topic: str, target: queue.Queue):
     import paho.mqtt.client as mqtt
     try:
         client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)     # paho-mqtt 2.x
     except AttributeError:
         client = mqtt.Client()                                      # paho-mqtt 1.x
 
-    def verbunden(c, *args):
+    def connected(c, *args):
         c.subscribe(topic)
-        print(f"MQTT verbunden mit {host}:{port}, warte auf {topic}")
+        print(f"MQTT connected to {host}:{port}, waiting for {topic}")
 
-    def nachricht(c, userdata, msg):
+    def message(c, userdata, msg):
         try:
-            daten = json.loads(msg.payload)
+            data = json.loads(msg.payload)
         except ValueError:
-            print("kein JSON auf", msg.topic)
+            print("no JSON on", msg.topic)
             return
-        for e in daten if isinstance(daten, list) else [daten]:
-            ziel.put(e)
+        for e in data if isinstance(data, list) else [data]:
+            target.put(e)
 
-    client.on_connect, client.on_message = verbunden, nachricht
+    client.on_connect, client.on_message = connected, message
     client.connect(host, port)
     client.loop_start()
     return client
 
 
-def stdin_starten(ziel: queue.Queue):
-    def lesen():
-        for zeile in sys.stdin:
-            zeile = zeile.strip()
-            if zeile:
+def start_stdin(target: queue.Queue):
+    def read():
+        for line in sys.stdin:
+            line = line.strip()
+            if line:
                 try:
-                    ziel.put(json.loads(zeile))
+                    target.put(json.loads(line))
                 except ValueError:
-                    print("kein JSON:", zeile)
-    threading.Thread(target=lesen, daemon=True).start()
+                    print("no JSON:", line)
+    threading.Thread(target=read, daemon=True).start()
+
+
+def parse_args(argv=None):
+    ap = argparse.ArgumentParser(description="Detections -> pan-tilt tracking")
+    source = ap.add_mutually_exclusive_group(required=True)
+    source.add_argument("--mqtt", metavar="HOST", help="broker, e.g. localhost")
+    source.add_argument("--motion", action="store_true", help="demo: track motion in the webcam image")
+    source.add_argument("--stdin", action="store_true", help="events as JSON lines from standard input")
+    source.add_argument("--hq-only", action="store_true", help="no webcams, stage 2 only (needs --hq)")
+    ap.add_argument("--hq", choices=["off", "sky", "color", "mqtt"], default="off",
+                    help="stage 2: how the target is found in the HQ image")
+    ap.add_argument("--color", default="red", help="for --hq color: red, yellow, green or blue")
+    ap.add_argument("--hq-gain", type=float, default=0.6,
+                    help="share of the error corrected per HQ image (smaller = calmer)")
+    ap.add_argument("--port", type=int, default=1883)
+    ap.add_argument("--topic", default="sensors/+/detections")
+    ap.add_argument("--target-class", action="append", help="track only this class, e.g. --target-class drone")
+    ap.add_argument("--min-confidence", type=float, default=0.4)
+    ap.add_argument("--pico", default=None, help="serial port, otherwise found automatically")
+    args = ap.parse_args(argv)
+    if args.hq_only and args.hq in ("off", "mqtt"):
+        ap.error("--hq-only needs --hq sky or --hq color")
+    if args.hq == "mqtt" and not args.mqtt:
+        ap.error("--hq mqtt only works together with --mqtt")
+    return args
 
 
 def main():
     import serial
-    ap = argparse.ArgumentParser(description="Erkennungen -> Pan-Tilt nachfuehren")
-    quelle = ap.add_mutually_exclusive_group(required=True)
-    quelle.add_argument("--mqtt", metavar="HOST", help="Broker, z. B. localhost")
-    quelle.add_argument("--bewegung", action="store_true", help="Demo: Bewegung im Webcam-Bild verfolgen")
-    quelle.add_argument("--stdin", action="store_true", help="Events als JSON-Zeilen von der Standardeingabe")
-    ap.add_argument("--port", type=int, default=1883)
-    ap.add_argument("--topic", default="sensors/+/detections")
-    ap.add_argument("--klasse", action="append", help="nur diese Klasse verfolgen, z. B. --klasse drone")
-    ap.add_argument("--min-konfidenz", type=float, default=0.4)
-    ap.add_argument("--pico", default=None, help="serieller Anschluss, sonst automatisch")
-    args = ap.parse_args()
+    args = parse_args()
 
     events = queue.Queue()
-    webcams, melder = {}, {}
+    webcams, detectors = {}, {}
     if args.mqtt:
-        mqtt_starten(args.mqtt, args.port, args.topic, events)
+        start_mqtt(args.mqtt, args.port, args.topic, events)
     elif args.stdin:
-        stdin_starten(events)
-    else:
-        import cv2
-        from pantilt_klick import WEBCAM_GERAETE, webcam_oeffnen
-        for cid, geraet in WEBCAM_GERAETE.items():
-            webcams[cid] = webcam_oeffnen(geraet, KAMERAS[cid])
-            melder[cid] = BewegungsMelder(cid, KAMERAS[cid])
-        print("Bewegungs-Demo: die ersten Sekunden ruhig halten, dann bewegt sich etwas vor der Webcam.")
+        start_stdin(events)
+    elif args.motion:
+        from pantilt_click import WEBCAM_DEVICES, open_webcam
+        for cid, device in WEBCAM_DEVICES.items():
+            webcams[cid] = open_webcam(device, CAMERAS[cid])
+            detectors[cid] = MotionDetector(cid, CAMERAS[cid])
+        print("Motion demo: keep still for the first seconds, then move something in front of a webcam.")
 
-    with serial.Serial(pico_anschluss(args.pico), 115200, timeout=0.3) as ser:
-        st = Steuerung(ser, KAMERAS, PLATTFORM)
-        print(st.meldung)
-        nf = Nachfuehrung(st, klassen=args.klasse, min_konfidenz=args.min_konfidenz)
-        print("Grundstellung:", st.fahren(*nf.heim))
+    hq = hq_detector = fine = None
+    if args.hq != "off":
+        import pantilt_hq
+        fine = pantilt_hq.FineControl(PLATFORM, gain=args.hq_gain)
+        if args.hq in ("sky", "color"):
+            hq = pantilt_hq.open_hq()
+            if hq is None:
+                sys.exit("stage 2 needs the HQ camera")
+            hq_detector = pantilt_hq.SkyDetector() if args.hq == "sky" else pantilt_hq.ColorDetector(args.color)
+        print(f"Stage 2 on: the HQ camera looks for the target ({args.hq})")
+
+    windows = bool(webcams) or hq is not None
+    if windows:
+        import cv2
+
+    with serial.Serial(find_pico(args.pico), 115200, timeout=0.3) as ser:
+        ctl = Controller(ser, CAMERAS, PLATFORM)
+        print(ctl.message)
+        tracker = Tracker(ctl, classes=args.target_class, min_confidence=args.min_confidence)
+        print("Home position:", ctl.move(*tracker.home))
         try:
             while True:
                 for cid, cap in webcams.items():
-                    ok, bild = cap.read()
+                    ok, img = cap.read()
                     if not ok:
                         continue
-                    e = melder[cid].bild(bild)
+                    e = detectors[cid].image(img)
                     if e:
                         events.put(e)
                         b = e["bbox"]
-                        k = KAMERAS[cid]
-                        sx, sy = bild.shape[1] / k.breite, bild.shape[0] / k.hoehe
+                        k = CAMERAS[cid]
+                        sx, sy = img.shape[1] / k.width, img.shape[0] / k.height
                         p1 = (int(b["x"] * sx), int(b["y"] * sy))
                         p2 = (int((b["x"] + b["w"]) * sx), int((b["y"] + b["h"]) * sy))
-                        cv2.rectangle(bild, p1, p2, (0, 255, 0), 3)
-                    hoehe = round(960 * bild.shape[0] / bild.shape[1])
-                    cv2.imshow(cid, cv2.resize(bild, (960, hoehe)))
+                        cv2.rectangle(img, p1, p2, (0, 255, 0), 3)
+                    height = round(960 * img.shape[0] / img.shape[1])
+                    cv2.imshow(cid, cv2.resize(img, (960, height)))
+
+                if hq is not None:                              # stage 2 with our own detector
+                    img = hq.capture_array()
+                    hit = hq_detector.image(img)
+                    if hit:
+                        tracker.hq_target(*fine.target(*hit, pantilt_hq.current_position(ctl)))
+                    cv2.imshow("HQ camera", pantilt_hq.hq_display(img, hit))
+
                 while not events.empty():
-                    grund = nf.event(events.get())
-                    if grund and not webcams:
-                        print("ignoriert:", grund)
-                meldung = nf.takt()
-                if meldung:
-                    print(meldung)
-                if webcams:
+                    e = events.get()
+                    if e.get("camera_id") == "hq":              # stage 2 with the detection of Task 2
+                        if fine and float(e.get("confidence", 1.0)) >= args.min_confidence and "bbox" in e:
+                            u, v = bbox_center(e["bbox"])
+                            tracker.hq_target(*fine.target(u, v, pantilt_hq.current_position(ctl)))
+                        continue
+                    reason = tracker.event(e)
+                    if reason and not webcams and reason != "HQ camera leads":
+                        print("ignored:", reason)
+
+                message = tracker.tick()
+                if message:
+                    print(message)
+                if windows:
                     if cv2.waitKey(1) & 0xFF in (ord("q"), 27):
                         break
                 else:
@@ -259,7 +342,9 @@ def main():
         finally:
             for cap in webcams.values():
                 cap.release()
-            if webcams:
+            if hq is not None:
+                hq.stop()
+            if windows:
                 cv2.destroyAllWindows()
 
 
