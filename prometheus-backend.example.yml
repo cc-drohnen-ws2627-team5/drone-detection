@@ -1,0 +1,35 @@
+# Task 4 - Backend Monitoring Configuration
+# Example configuration - not deployed yet.
+# Merge the scrape job into the existing prometheus.yml.
+
+scrape_configs:
+  - job_name: "drone-backend"
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    scheme: https
+
+    authorization:
+      type: Bearer
+      credentials_file: /etc/prometheus/drone-backend-api-token
+
+    static_configs:
+      - targets:
+          - "backend.example.lan:443"
+
+# Grafana Cloud integration:
+# Add drone_backend_ready to the existing
+# remote_write metric allowlist.
+# Preserve all existing Raspberry Pi metrics.
+#
+# Expected monitoring metrics:
+# - up{job="drone-backend"}
+# - drone_backend_ready{job="drone-backend"}
+#
+# TODO:
+# - Confirm backend hostname and port with Task 3.
+# - Confirm HTTP/HTTPS deployment configuration.
+# - Configure API token securely on the Prometheus host.
+# - Update the existing remote_write filter.
+# - Validate configuration using promtool.
+# - Test backend metrics in Grafana Cloud.
