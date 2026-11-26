@@ -1,141 +1,141 @@
-# Pan-Tilt-Firmware v4 fuer Raspberry Pi Pico 2 W (MicroPython)
-# Befehle per USB-Serial, je eine Zeile:
-#   MOVE <pan> <tilt>   Zielwinkel in Grad anfahren (sanft, mit SPEED)  -> OK
-#   SPEED <grad_pro_s>  Hoechstgeschwindigkeit setzen (1-600)           -> OK
-#   ACCEL <grad_pro_s2> Beschleunigung setzen (10-5000); klein = weich  -> OK
-#   KICK <pan> <tilt>   Anfahrhilfe in Grad je Achse, 0 = aus           -> OK
-#   HOME                zurueck in die Mitte                            -> OK
-#   STOP                weich abbremsen und stehen bleiben              -> OK
-#   POS?                aktuelle Position                               -> POS <pan> <tilt>
-# Unbekannte oder fehlerhafte Befehle -> ERR
-# Winkel sind Servo-Winkel 0-180. Bei unserer Plattform: Pan 90 = geradeaus, groesser = links;
-# Tilt 90 = senkrecht nach oben, 180 = waagerecht nach vorne, 0 = waagerecht nach hinten.
+# Pan-tilt firmware v4 for the Raspberry Pi Pico 2 W (MicroPython)
+# Commands over USB serial, one per line:
+#   MOVE <pan> <tilt>   go to the target angles in degrees (smoothly, see SPEED)  -> OK
+#   SPEED <deg_per_s>   set the maximum speed (1-600)                              -> OK
+#   ACCEL <deg_per_s2>  set the acceleration (10-5000); small = softer             -> OK
+#   KICK <pan> <tilt>   start-up help in degrees per axis, 0 = off                 -> OK
+#   HOME                back to the centre                                         -> OK
+#   STOP                brake softly and stay                                      -> OK
+#   POS?                current position                                           -> POS <pan> <tilt>
+# Unknown or broken commands -> ERR
+# Angles are servo angles 0-180. On our platform: pan 90 = straight ahead, larger = left;
+# tilt 90 = straight up, 180 = level to the front, 0 = level to the back.
 #
-# Anfahrhilfe (neu in v4): Ein Servo drueckt umso staerker, je weiter er vom Ziel weg ist.
-# Faehrt er sanft los, ist er anfangs nur ein winziges Stueck vom Ziel entfernt, und beim
-# Anheben der schweren Kamera reicht die Kraft nicht zum Losfahren. Deshalb bekommt der
-# Tilt-Servo beim Losfahren nach oben fuer KICK_MS ein Ziel ein paar Grad weiter weg,
-# wie ein kleiner Stups von Hand. Ausschalten mit KICK 0 0.
+# Start-up help (new in v4): a servo pushes harder the further it is from its target.
+# When it starts smoothly, it is only a tiny bit away from the target at first, and
+# when lifting the heavy camera the force is not enough to get going. That is why the
+# tilt servo gets a target a few degrees further away for KICK_MS when it starts to
+# lift, like a small push by hand. Turn it off with KICK 0 0.
 
 from machine import Pin, PWM
 import sys, select, time
 
-MIN_US, MAX_US = 600, 2400     # Pulsgrenzen (MS18: 500-2500)
+MIN_US, MAX_US = 600, 2400     # pulse limits (MS18: 500-2500)
 PAN_PIN, TILT_PIN = 15, 14
 PAN_LIMIT = (0, 180)
 TILT_LIMIT = (0, 180)
-HOME_POS = (90, 90)            # Objektiv senkrecht nach oben: dort traegt der Servo am wenigsten Last
-TAKT_MS = 20                   # 50 Hz, wie die Servo-Periode
-TILT_SENKRECHT = 90            # Servo-Winkel, bei dem die Kamera senkrecht steht
-KICK_PAN, KICK_TILT = 0.0, 6.0 # Anfahrhilfe in Grad (Pan braucht keine)
-KICK_MS = 150                  # so lange dauert der Stups
+HOME_POS = (90, 90)            # lens pointing straight up: the servo carries the least load there
+PERIOD_MS = 20                 # 50 Hz, like the servo period
+TILT_VERTICAL = 90             # servo angle at which the camera points straight up
+KICK_PAN, KICK_TILT = 0.0, 6.0 # start-up help in degrees (pan does not need it)
+KICK_MS = 150                  # how long the push lasts
 
 
-class Achse:
-    def __init__(self, pin, limits, start, kick=0.0, senkrecht=None):
+class Axis:
+    def __init__(self, pin, limits, start, kick=0.0, vertical=None):
         self.pwm = PWM(Pin(pin))
         self.pwm.freq(50)
         self.limits = limits
-        self.ist = self.ziel = self.begrenzen(start)
-        self.v = 0.0               # aktuelle Geschwindigkeit in Grad pro Sekunde
-        self.kick = kick           # Groesse des Stups in Grad, 0 = aus
-        self.senkrecht = senkrecht # None: Stups in beide Richtungen, sonst nur beim Anheben
-        self.kick_versatz = 0.0
-        self.kick_bis = time.ticks_ms()
-        self.schreiben()
+        self.pos = self.target = self.clamp(start)
+        self.v = 0.0               # current speed in degrees per second
+        self.kick = kick           # size of the push in degrees, 0 = off
+        self.vertical = vertical   # None: push in both directions, otherwise only when lifting
+        self.kick_offset = 0.0
+        self.kick_until = time.ticks_ms()
+        self.write()
 
-    def begrenzen(self, grad):
-        return max(self.limits[0], min(self.limits[1], grad))
+    def clamp(self, deg):
+        return max(self.limits[0], min(self.limits[1], deg))
 
-    def setze_ziel(self, grad):
-        self.ziel = self.begrenzen(grad)
+    def set_target(self, deg):
+        self.target = self.clamp(deg)
 
-    def hebt(self):
-        # Faehrt die Achse gegen die Schwerkraft, also Richtung senkrecht?
-        if self.senkrecht is None:
+    def lifts(self):
+        # Does the axis move against gravity, i.e. towards vertical?
+        if self.vertical is None:
             return True
-        return abs(self.ziel - self.senkrecht) < abs(self.ist - self.senkrecht)
+        return abs(self.target - self.vertical) < abs(self.pos - self.vertical)
 
-    def kick_vorbei(self):
-        return time.ticks_diff(self.kick_bis, time.ticks_ms()) <= 0
+    def kick_over(self):
+        return time.ticks_diff(self.kick_until, time.ticks_ms()) <= 0
 
-    def schritt(self, v_max, a, dt):
-        # Weich anfahren und weich bremsen: Die Geschwindigkeit aendert sich pro Takt
-        # hoechstens um a*dt, und vor dem Ziel wird rechtzeitig abgebremst.
-        diff = self.ziel - self.ist
+    def step(self, v_max, a, dt):
+        # Soft start and soft stop: the speed changes by at most a*dt per period,
+        # and braking starts in time before the target.
+        diff = self.target - self.pos
         if diff == 0 and self.v == 0:
-            if self.kick_versatz and self.kick_vorbei():
-                self.kick_versatz = 0.0
-                self.schreiben()
+            if self.kick_offset and self.kick_over():
+                self.kick_offset = 0.0
+                self.write()
             return
-        if self.v == 0 and self.kick and abs(diff) > 0.2 and self.hebt():
-            # Losfahren aus dem Stand: kurzer Stups in Fahrtrichtung, bei kleinen
-            # Bewegungen hoechstens doppelt so weit wie die Bewegung selbst
-            groesse = min(self.kick, max(1.5, 2 * abs(diff)))
-            self.kick_versatz = groesse if diff > 0 else -groesse
-            self.kick_bis = time.ticks_add(time.ticks_ms(), KICK_MS)
-        elif self.kick_versatz and self.kick_vorbei():
-            self.kick_versatz = 0.0
+        if self.v == 0 and self.kick and abs(diff) > 0.2 and self.lifts():
+            # starting from standstill: short push in the direction of travel,
+            # for small moves at most twice as far as the move itself
+            size = min(self.kick, max(1.5, 2 * abs(diff)))
+            self.kick_offset = size if diff > 0 else -size
+            self.kick_until = time.ticks_add(time.ticks_ms(), KICK_MS)
+        elif self.kick_offset and self.kick_over():
+            self.kick_offset = 0.0
         dv = a * dt
-        # hoechste Geschwindigkeit, aus der man bis zum Ziel noch anhalten kann
-        v_soll = min(v_max, ((dv / 2) ** 2 + 2 * a * abs(diff)) ** 0.5 - dv / 2)
+        # highest speed from which we can still stop at the target
+        v_goal = min(v_max, ((dv / 2) ** 2 + 2 * a * abs(diff)) ** 0.5 - dv / 2)
         if diff < 0:
-            v_soll = -v_soll
-        self.v += max(-dv, min(dv, v_soll - self.v))
-        weg = self.v * dt
-        if weg * diff > 0 and abs(weg) >= abs(diff) or abs(diff) < 0.02 and abs(self.v) <= dv:
-            self.ist, self.v = self.ziel, 0.0          # angekommen
+            v_goal = -v_goal
+        self.v += max(-dv, min(dv, v_goal - self.v))
+        way = self.v * dt
+        if way * diff > 0 and abs(way) >= abs(diff) or abs(diff) < 0.02 and abs(self.v) <= dv:
+            self.pos, self.v = self.target, 0.0          # arrived
         else:
-            self.ist = self.begrenzen(self.ist + weg)
-        self.schreiben()
+            self.pos = self.clamp(self.pos + way)
+        self.write()
 
-    def bremsen(self, a):
-        # Ziel so setzen, dass die Achse mit a ausrollt statt hart zu stoppen
-        self.ziel = self.begrenzen(self.ist + self.v * abs(self.v) / (2 * a))
+    def brake(self, a):
+        # set the target so that the axis rolls out with a instead of stopping hard
+        self.target = self.clamp(self.pos + self.v * abs(self.v) / (2 * a))
 
-    def schreiben(self):
-        grad = self.begrenzen(self.ist + self.kick_versatz)
-        us = MIN_US + (MAX_US - MIN_US) * grad / 180
+    def write(self):
+        deg = self.clamp(self.pos + self.kick_offset)
+        us = MIN_US + (MAX_US - MIN_US) * deg / 180
         self.pwm.duty_ns(int(us * 1000))
 
 
-pan = Achse(PAN_PIN, PAN_LIMIT, HOME_POS[0], kick=KICK_PAN)
-tilt = Achse(TILT_PIN, TILT_LIMIT, HOME_POS[1], kick=KICK_TILT, senkrecht=TILT_SENKRECHT)
-speed = 60.0                   # Grad pro Sekunde; langsam starten, die Kamera ist schwer
-accel = 200.0                  # Grad pro Sekunde^2; kleiner = weicheres Anfahren und Bremsen
+pan = Axis(PAN_PIN, PAN_LIMIT, HOME_POS[0], kick=KICK_PAN)
+tilt = Axis(TILT_PIN, TILT_LIMIT, HOME_POS[1], kick=KICK_TILT, vertical=TILT_VERTICAL)
+speed = 60.0                   # degrees per second; start slowly, the camera is heavy
+accel = 200.0                  # degrees per second^2; smaller = softer start and stop
 
 
-def befehl(zeile):
+def command(line):
     global speed, accel
-    teile = zeile.split()
-    if not teile:
+    parts = line.split()
+    if not parts:
         return None
-    cmd = teile[0].upper()
+    cmd = parts[0].upper()
     try:
-        if cmd == "MOVE" and len(teile) == 3:
-            pan.setze_ziel(float(teile[1]))
-            tilt.setze_ziel(float(teile[2]))
+        if cmd == "MOVE" and len(parts) == 3:
+            pan.set_target(float(parts[1]))
+            tilt.set_target(float(parts[2]))
             return "OK"
-        if cmd == "SPEED" and len(teile) == 2:
-            speed = max(1.0, min(600.0, float(teile[1])))
+        if cmd == "SPEED" and len(parts) == 2:
+            speed = max(1.0, min(600.0, float(parts[1])))
             return "OK"
-        if cmd == "ACCEL" and len(teile) == 2:
-            accel = max(10.0, min(5000.0, float(teile[1])))
+        if cmd == "ACCEL" and len(parts) == 2:
+            accel = max(10.0, min(5000.0, float(parts[1])))
             return "OK"
-        if cmd == "KICK" and len(teile) == 3:
-            pan.kick = max(0.0, min(20.0, float(teile[1])))
-            tilt.kick = max(0.0, min(20.0, float(teile[2])))
+        if cmd == "KICK" and len(parts) == 3:
+            pan.kick = max(0.0, min(20.0, float(parts[1])))
+            tilt.kick = max(0.0, min(20.0, float(parts[2])))
             return "OK"
-        if cmd == "HOME" and len(teile) == 1:
-            pan.setze_ziel(HOME_POS[0])
-            tilt.setze_ziel(HOME_POS[1])
+        if cmd == "HOME" and len(parts) == 1:
+            pan.set_target(HOME_POS[0])
+            tilt.set_target(HOME_POS[1])
             return "OK"
-        if cmd == "STOP" and len(teile) == 1:
-            pan.bremsen(accel)
-            tilt.bremsen(accel)
+        if cmd == "STOP" and len(parts) == 1:
+            pan.brake(accel)
+            tilt.brake(accel)
             return "OK"
-        if cmd == "POS?" and len(teile) == 1:
-            return "POS %.1f %.1f" % (pan.ist, tilt.ist)
+        if cmd == "POS?" and len(parts) == 1:
+            return "POS %.1f %.1f" % (pan.pos, tilt.pos)
     except ValueError:
         pass
     return "ERR"
@@ -143,23 +143,23 @@ def befehl(zeile):
 
 poll = select.poll()
 poll.register(sys.stdin, select.POLLIN)
-puffer = ""
-naechster = time.ticks_ms()
+buffer = ""
+next_tick = time.ticks_ms()
 
 while True:
-    # Eingabe Zeichen fuer Zeichen lesen, damit die Bewegung nie blockiert
+    # read input character by character so the movement never blocks
     if poll.poll(0):
-        z = sys.stdin.read(1)
-        if z in ("\r", "\n"):
-            antwort = befehl(puffer)
-            if antwort:
-                print(antwort)
-            puffer = ""
-        elif z:
-            puffer += z
+        c = sys.stdin.read(1)
+        if c in ("\r", "\n"):
+            answer = command(buffer)
+            if answer:
+                print(answer)
+            buffer = ""
+        elif c:
+            buffer += c
 
-    # Alle 20 ms ein kleines Stueck Richtung Ziel fahren
-    if time.ticks_diff(time.ticks_ms(), naechster) >= 0:
-        naechster = time.ticks_add(naechster, TAKT_MS)
-        pan.schritt(speed, accel, TAKT_MS / 1000)
-        tilt.schritt(speed, accel, TAKT_MS / 1000)
+    # every 20 ms move a small step towards the target
+    if time.ticks_diff(time.ticks_ms(), next_tick) >= 0:
+        next_tick = time.ticks_add(next_tick, PERIOD_MS)
+        pan.step(speed, accel, PERIOD_MS / 1000)
+        tilt.step(speed, accel, PERIOD_MS / 1000)
